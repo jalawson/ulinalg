@@ -30,50 +30,56 @@ class matrix():
         return matrix([self.mat[self.cur-1]])
 
     def __getitem__(self, index):
-        # index can be a single int
-        if isinstance(index, int):
-            print("here 1")
-            return matrix(self.mat[index])
-        # this section is to get around the missing slice.indices() method
+        print(type(index))
         is_slice=False
-        if isinstance(index[0], int):
-            s0 = index[0]
-            p0 = s0+1
-        else: # slice
-            is_slice = True
-            s = str(index[0]).split(',')
-            print(s[0][6:], s[1][1:])
-            if s[0][6:] == 'None':
-                s0 = 0
-                p0 = self.m
-            else:
-                s0 = int(s[0][6:])
-                p0 = int(s[1][1:])
-        if isinstance(index[1], int):
-            s1 = index[1]
-            p1 = s1+1
-        else: #slice
-            is_slice = True
-            s = str(index[1]).split(',')
-            print(s[0][6:], s[1][1:])
-            if s[0][6:] == 'None':
-                s1 = 0
-                p1 = self.n
-            else:
-                s1 = int(s[0][6:])
-                p1 = int(s[1][1:])
-        # this works when the slice stuff is implemented in uPy
-        #midx = index[0].indices(self.m)
-        #nidx = index[1].indices(self.n)
-        #print("__getitem__", index, type(index[0])==slice, type(index[1])==slice)
-        #print(nidx,midx)
-        #return [self.mat[i][j] for j in range(*nidx) for i in range(*midx)]
+        if type(index) == tuple:
+            # int and int
+            # int and slice
+            # slice and int
+            # slice and slice
+            # this section is to get around the missing slice.indices() method
+            if isinstance(index[0], int):
+                s0 = index[0]
+                p0 = s0+1
+            else: # slice
+                is_slice = True
+                s = str(index[0]).split(',')
+                print(s[0][6:], s[1][1:])
+                if s[0][6:] == 'None':
+                    s0 = 0
+                    p0 = self.m
+                else:
+                    s0 = int(s[0][6:])
+                    p0 = int(s[1][1:])
+            if isinstance(index[1], int):
+                s1 = index[1]
+                p1 = s1+1
+            else: #slice
+                is_slice = True
+                s = str(index[1]).split(',')
+                print(s[0][6:], s[1][1:])
+                if s[0][6:] == 'None':
+                    s1 = 0
+                    p1 = self.n
+                else:
+                    s1 = int(s[0][6:])
+                    p1 = int(s[1][1:])
+            # this works when the slice stuff is implemented in uPy
+            #midx = index[0].indices(self.m)
+            #nidx = index[1].indices(self.n)
+            #print("__getitem__", index, type(index[0])==slice, type(index[1])==slice)
+            #print(nidx,midx)
+            #return [self.mat[i][j] for j in range(*nidx) for i in range(*midx)]
         if is_slice:
             print("is_slice", s0, p0, s1, p1)
             if (p1 - s1) == 1:
                 return matrix([self.mat[i][s1] for i in range(s0,p0)])
             else:
                 return matrix([[self.mat[i][j] for j in range(s1,p1)] for i in range(s0,p0)])
+        # index can be a single int
+        elif isinstance(index, int):
+            print("here 1")
+            return matrix(self.mat[index])
         else:
             return self.mat[s0][s1]
 

@@ -85,7 +85,7 @@ class matrix():
 
     def __setitem__(self, index, val):
         print("index",index)
-        self.mat[index[1]][index[0]] = val
+        self.mat[index[0]][index[1]] = val
 
     # there is also __delitem__
 

@@ -9,6 +9,7 @@ class matrix():
         # x = array([[1,2,3]]) -> array matrix shape (1x3)
         #self.mat = data
         # if cstride != 0 then interpret data as cstride and rstride
+        print(cstride, rstride)
         if cstride != 0:
             self.n = int(len(data) / cstride)
             self.m = int(len(data) / self.n)
@@ -29,6 +30,7 @@ class matrix():
             self.data = [data[i][j] for i in range(self.m) for j in range(self.n)]
             self.cstride = 1
             self.rstride = self.n
+        print("cstride, rstride", self.cstride, self.rstride)
         print("m , n", self.m, self.n)
         print(self.data)
 
@@ -43,7 +45,11 @@ class matrix():
         return matrix([self.mat[self.cur-1]])
 
     def __getitem__(self, index):
-        print(type(index))
+        print(index, type(index))
+        return self.data[index[0]*self.rstride + index[1]*self.cstride]
+
+    def __oldgetitem__(self, index):
+        print(index, type(index))
         is_slice=False
         if type(index) == tuple:
             # int and int
@@ -86,19 +92,19 @@ class matrix():
         if is_slice:
             print("is_slice", s0, p0, s1, p1)
             if (p1 - s1) == 1:
-                return matrix([self.mat[i][s1] for i in range(s0,p0)])
+                return matrix([self.data[i][s1] for i in range(s0,p0)])
             else:
-                return matrix([[self.mat[i][j] for j in range(s1,p1)] for i in range(s0,p0)])
+                return matrix([[self.data[i][j] for j in range(s1,p1)] for i in range(s0,p0)])
         # index can be a single int
         elif isinstance(index, int):
             print("here 1")
-            return matrix(self.mat[index])
+            return matrix(self.data[index])
         else:
-            return self.mat[s0][s1]
+            return self.data[s0][s1]
 
     def __setitem__(self, index, val):
         print("index",index)
-        self.mat[index[0]][index[1]] = val
+        self.data[index[0]*self.rstride + index[1]*self.cstride] = val
 
     # there is also __delitem__
 
@@ -201,7 +207,8 @@ class matrix():
         # this returns a new matrix object
         #Z = matrix(self.n,self.m,[self.mat[i][j] for j in range(self.n) for i in range(self.m)])
         #return matrix([[self.mat[j][i] for j in range(self.m)] for i in range(self.n)])
-        return matrix(self.data, cstride = 3, rstride = 1)
+        #return matrix(self.data, cstride = 4, rstride = 1)
+        return matrix(self.data, cstride = self.rstride, rstride = self.cstride)
 
 # matrix version operations
 def mdot(x,y):

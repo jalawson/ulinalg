@@ -1,23 +1,36 @@
 class matrix():
 
-    def __init__(self, data):
+    def __init__(self, data, cstride = 0, rstride = 0):
         print("__init__",data)
         # data can be of the form
         # x = array(2) -> array(2) acts like a scaler
         # x = array([2]) -> array([2]) vector
         # x = array([1,2,3]) -> array([1,2,3]) vector length 3
         # x = array([[1,2,3]]) -> array matrix shape (1x3)
-        self.mat = data
-        self.n = 1
-        if type(data) == int:
-            self.m = 1
-        else: # it is a list
-            self.m = len(data)
-            # is data[0] a list
-            if (type(data[0]) == list):
-                self.n = len(data[0])
+        #self.mat = data
+        # if cstride != 0 then interpret data as cstride and rstride
+        if cstride != 0:
+            self.n = int(len(data) / cstride)
+            self.m = int(len(data) / self.n)
+            self.cstride = cstride
+            self.rstride = rstride
+            self.data = data
+        else:
+            # else determine from list passed in
+            # get the dimensions
+            self.n = 1
+            if type(data) == int:
+                self.m = 1
+            else: # it is a list
+                self.m = len(data)
+                # is data[0] a list
+                if (type(data[0]) == list):
+                    self.n = len(data[0])
+            self.data = [data[i][j] for i in range(self.m) for j in range(self.n)]
+            self.cstride = 1
+            self.rstride = self.n
         print("m , n", self.m, self.n)
-        print(self.mat)
+        print(self.data)
 
     def __iter__(self):
         self.cur = 0
@@ -90,16 +103,57 @@ class matrix():
     # there is also __delitem__
 
     #def __str__(self):
+    def __oldrepr__(self):
+        # things that use __str__ will fallback to __repr__
+        l = 0
+        for i in self.data:
+            l = max(l, len(repr(i)))
+        s = 'mat({'
+        for i in range(self.m):
+            s = s + '['
+            for j in range(self.n):
+                s1 = repr(self.data[(i*self.m) + j])
+                s = s + s1 + ' '*(l-len(s1))
+                #s = s + repr(self.data[(i*self.m) + j])
+                if (j < (self.n-1)):
+                    s = s + ', '
+            if (i < (self.m-1)):
+                s = s + '],\n     '
+            else:
+                s = s + ']'
+        #if type(self.data[0]) != list:
+        #    s = s + repr(self.data)
+        #else:
+        #    for i in range(self.m):
+        #        s = s + repr(self.data[i])
+        #        if i < (self.m-1):
+        #            s = s + ',\n   '
+        s = s + '})'
+        return s
+
     def __repr__(self):
         # things that use __str__ will fallback to __repr__
+        # find max string field size for the matrix elements
+        l = 0
+        for i in self.data:
+            l = max(l, len(repr(i)))
         s = 'mat({'
-        if type(self.mat[0]) != list:
-            s = s + repr(self.mat)
-        else:
-            for i in range(self.m):
-                s = s + repr(self.mat[i])
-                if i < (self.m-1):
-                    s = s + ',\n    '
+        r = 0
+        for i in range(self.m):
+            c = 0
+            s = s + '['
+            for j in range(self.n):
+                s1 = repr(self.data[r + c])
+                s = s + s1 + ' '*(l-len(s1))
+                #s = s + repr(self.data[(i*self.m) + j])
+                if (j < (self.n-1)):
+                    s = s + ', '
+                c = c + self.cstride
+            if (i < (self.m-1)):
+                s = s + '],\n     '
+            else:
+                s = s + ']'
+            r = r + self.rstride
         s = s + '})'
         return s
 
@@ -111,6 +165,9 @@ class matrix():
         if type(a[0]) == int:
             for i in a:
                 print(i*b)
+
+    def copy(self):
+        return self.data
     
     def size(self, axis = 0):
         ''' 0 entries
@@ -136,14 +193,15 @@ class matrix():
         return self.m == self.n
 
     def transpose(self):
-        print(self.mat)
+        print(self.data)
         # should try and return a view - changing an element in the transposed matrix changes the 
         # element in the original matrix
         #self.mat = [[self.mat[i][j] for i in range(len(self.mat))] for j in range(len(self.mat[0]))]
         #return [[self.mat[i][j] for i in range(len(self.mat))] for j in range(len(self.mat[0]))]
         # this returns a new matrix object
         #Z = matrix(self.n,self.m,[self.mat[i][j] for j in range(self.n) for i in range(self.m)])
-        return matrix([[self.mat[j][i] for j in range(self.m)] for i in range(self.n)])
+        #return matrix([[self.mat[j][i] for j in range(self.m)] for i in range(self.n)])
+        return matrix(self.data, cstride = 3, rstride = 1)
 
 # matrix version operations
 def mdot(x,y):

@@ -11,8 +11,12 @@ class matrix():
         # if cstride != 0 then interpret data as cstride and rstride
         print(cstride, rstride)
         if cstride != 0:
-            self.n = int(len(data) / cstride)
-            self.m = int(len(data) / self.n)
+            if cstride == 1:
+                self.n = rstride
+                self.m = int(len(data) / self.n)
+            else:
+                self.m = cstride
+                self.n = int(len(data) / self.m)
             self.cstride = cstride
             self.rstride = rstride
             self.data = data
@@ -43,6 +47,16 @@ class matrix():
             raise StopIteration
         self.cur = self.cur + 1
         return matrix([self.mat[self.cur-1]])
+
+    def slice_to_offset(self, r0, r1, c0, c1):
+        # check values and limit them
+        nd = []
+        for i in range(r0, r1):
+            d0 = i*self.rstride + c0*self.cstride
+            d1 = d0 + (c1 - c0)
+            nd.extend(self.data[d0:d1])
+            print(d0, d1, self.data[d0:d1])
+        return matrix(nd, cstride=1, rstride=(c1-c0))
 
     def __getitem__(self, index):
         print(index, type(index))

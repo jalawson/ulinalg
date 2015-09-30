@@ -46,7 +46,7 @@ class matrix():
         if self.cur >= self.m:
             raise StopIteration
         self.cur = self.cur + 1
-        return matrix([self.mat[self.cur-1]])
+        return matrix([self.data[self.cur-1]])
 
     def slice_to_offset(self, r0, r1, c0, c1):
         # check values and limit them
@@ -58,63 +58,56 @@ class matrix():
             print(d0, d1, self.data[d0:d1])
         return matrix(nd, cstride=1, rstride=(c1-c0))
 
-    def __getitem__(self, index):
+    def __newgetitem__(self, index):
         print(index, type(index))
         return self.data[index[0]*self.rstride + index[1]*self.cstride]
 
-    def __oldgetitem__(self, index):
+    def slice_indices(self, index):
+        # this section is to get around the missing slice.indices() method
+        # the following should work when the slice.indices() method is implemented in uPy
+        #     midx = index[0].indices(self.m)
+        #     nidx = index[1].indices(self.n)
+        st = str(index).split(',')
+        print(st[0][6:], st[1][1:])
+        if st[0][6:] == 'None':
+            s0 = 0
+            p0 = self.m
+        else:
+            s0 = int(st[0][6:])
+            p0 = int(st[1][1:])
+        return (s0, p0)
+
+    def __getitem__(self, index):
         print(index, type(index))
-        is_slice=False
         if type(index) == tuple:
             # int and int
             # int and slice
             # slice and int
             # slice and slice
-            # this section is to get around the missing slice.indices() method
             if isinstance(index[0], int):
                 s0 = index[0]
                 p0 = s0+1
             else: # slice
-                is_slice = True
-                s = str(index[0]).split(',')
-                print(s[0][6:], s[1][1:])
-                if s[0][6:] == 'None':
-                    s0 = 0
-                    p0 = self.m
-                else:
-                    s0 = int(s[0][6:])
-                    p0 = int(s[1][1:])
+                s0, p0 = self.slice_indices(index[0])
             if isinstance(index[1], int):
                 s1 = index[1]
                 p1 = s1+1
             else: #slice
-                is_slice = True
-                s = str(index[1]).split(',')
-                print(s[0][6:], s[1][1:])
-                if s[0][6:] == 'None':
-                    s1 = 0
-                    p1 = self.n
-                else:
-                    s1 = int(s[0][6:])
-                    p1 = int(s[1][1:])
-            # this works when the slice stuff is implemented in uPy
-            #midx = index[0].indices(self.m)
-            #nidx = index[1].indices(self.n)
-            #print("__getitem__", index, type(index[0])==slice, type(index[1])==slice)
-            #print(nidx,midx)
-            #return [self.mat[i][j] for j in range(*nidx) for i in range(*midx)]
-        if is_slice:
-            print("is_slice", s0, p0, s1, p1)
-            if (p1 - s1) == 1:
-                return matrix([self.data[i][s1] for i in range(s0,p0)])
-            else:
-                return matrix([[self.data[i][j] for j in range(s1,p1)] for i in range(s0,p0)])
-        # index can be a single int
-        elif isinstance(index, int):
-            print("here 1")
-            return matrix(self.data[index])
+                s1, p1 = self.slice_indices(index[1])
         else:
-            return self.data[s0][s1]
+            # type is int? This will return a row
+            s0 = index
+            p0 = s0 + 1
+            s1 = 0
+            p1 = self.n
+        print(s0, p0, s1, p1)
+        # resultant matrix
+        z = self.slice_to_offset(s0, p0, s1, p1)
+        # if it's a single entry then return that entry as int, float etc.
+        if (p0 == s0 + 1) and (p1 == s1 + 1):
+            return z.data[0]
+        else:
+            return z
 
     def __setitem__(self, index, val):
         print("index",index)
@@ -123,34 +116,6 @@ class matrix():
     # there is also __delitem__
 
     #def __str__(self):
-    def __oldrepr__(self):
-        # things that use __str__ will fallback to __repr__
-        l = 0
-        for i in self.data:
-            l = max(l, len(repr(i)))
-        s = 'mat({'
-        for i in range(self.m):
-            s = s + '['
-            for j in range(self.n):
-                s1 = repr(self.data[(i*self.m) + j])
-                s = s + s1 + ' '*(l-len(s1))
-                #s = s + repr(self.data[(i*self.m) + j])
-                if (j < (self.n-1)):
-                    s = s + ', '
-            if (i < (self.m-1)):
-                s = s + '],\n     '
-            else:
-                s = s + ']'
-        #if type(self.data[0]) != list:
-        #    s = s + repr(self.data)
-        #else:
-        #    for i in range(self.m):
-        #        s = s + repr(self.data[i])
-        #        if i < (self.m-1):
-        #            s = s + ',\n   '
-        s = s + '})'
-        return s
-
     def __repr__(self):
         # things that use __str__ will fallback to __repr__
         # find max string field size for the matrix elements
@@ -165,7 +130,6 @@ class matrix():
             for j in range(self.n):
                 s1 = repr(self.data[r + c])
                 s = s + s1 + ' '*(l-len(s1))
-                #s = s + repr(self.data[(i*self.m) + j])
                 if (j < (self.n-1)):
                     s = s + ', '
                 c = c + self.cstride
@@ -203,25 +167,17 @@ class matrix():
     @property         
     def shape(self):
         # returns True if x is square
-        #return sum([len(i)==len(self.mat) for i in self.mat])==len(self.mat)
         return (self.m, self.n)
 
     @property         
     def is_square(self):
         # returns True if x is square
-        #return sum([len(i)==len(self.mat) for i in self.mat])==len(self.mat)
         return self.m == self.n
 
     def transpose(self):
-        print(self.data)
-        # should try and return a view - changing an element in the transposed matrix changes the 
-        # element in the original matrix
-        #self.mat = [[self.mat[i][j] for i in range(len(self.mat))] for j in range(len(self.mat[0]))]
-        #return [[self.mat[i][j] for i in range(len(self.mat))] for j in range(len(self.mat[0]))]
+        """ Returns a view """
         # this returns a new matrix object
-        #Z = matrix(self.n,self.m,[self.mat[i][j] for j in range(self.n) for i in range(self.m)])
-        #return matrix([[self.mat[j][i] for j in range(self.m)] for i in range(self.n)])
-        #return matrix(self.data, cstride = 4, rstride = 1)
+        #return matrix([[self.data[j][i] for j in range(self.m)] for i in range(self.n)])
         return matrix(self.data, cstride = self.rstride, rstride = self.cstride)
 
 # matrix version operations
@@ -245,10 +201,6 @@ def eye(m):
     for i in range(m):
         Z[i,i] = 1
     return Z
-
-def print_matrix(x):
-    for i in x:
-        print(i) 
 
 def tests():
 

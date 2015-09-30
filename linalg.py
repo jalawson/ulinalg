@@ -141,14 +141,23 @@ class matrix():
         s = s + '})'
         return s
 
-    def __mul__(a,b):
-        # element by element multiplication
-        print("MULT:",type(a),type(b))
-        if type(a) in [int, float] and type(b) in [int, float]:
-            return a*b
-        if type(a[0]) == int:
-            for i in a:
-                print(i*b)
+
+    def __mul__(self, a):
+        # matrix * scaler element by element multiplication
+        print("MULT:",type(a))
+        if type(a) in [int, float]:
+            ndata = [self.data[i]*a for i in range(len(self.data))]
+            return matrix(ndata, cstride=self.cstride, rstride= self.rstride)
+        #raise NotImplementedError()
+        return NotImplemented
+
+    # This doesn't work??? so __mul__ swaps the arguments for int,floats
+    def __rmul__(self, a):
+        # scaler * matrix element by element multiplication
+        print("MULT:",type(a))
+        if type(a) in [int, float]:
+            ndata = [self.data[i]*a for i in range(len(self.data))]
+            return matrix(ndata, cstride=self.cstride, rstride= self.rstride)
 
     def copy(self):
         return self.data

@@ -58,10 +58,6 @@ class matrix():
             print(d0, d1, self.data[d0:d1])
         return matrix(nd, cstride=1, rstride=(c1-c0))
 
-    def __newgetitem__(self, index):
-        print(index, type(index))
-        return self.data[index[0]*self.rstride + index[1]*self.cstride]
-
     def slice_indices(self, index):
         # this section is to get around the missing slice.indices() method
         # the following should work when the slice.indices() method is implemented in uPy
@@ -110,8 +106,40 @@ class matrix():
             return z
 
     def __setitem__(self, index, val):
-        print("index",index)
-        self.data[index[0]*self.rstride + index[1]*self.cstride] = val
+        print("index",index, type(val))
+        if type(index) == tuple:
+            # int and int => single entry gets changed (if val in [int,float])
+            # int and slice => row and columns take on val if val fits integrly
+            # slice and int
+            # slice and slice
+            # get the slice_to_offsets and run through the submatrix assigning
+            # values from val using mod on he rows and columns
+            if (type(index[0]) == int) and (type(index[1]) == int):
+                self.data[index[0]*self.rstride + index[1]*self.cstride] = val
+            else:
+                print(type(index[0]), type(index[1]))
+                if isinstance(index[0], int):
+                    s0 = index[0]
+                    p0 = s0+1
+                else: # slice
+                    s0, p0 = self.slice_indices(index[0])
+                if isinstance(index[1], int):
+                    s1 = index[1]
+                    p1 = s1+1
+                else: #slice
+                    s1, p1 = self.slice_indices(index[1])
+                print(s0, p0, s1, p1)
+                for i in range(s0, p0):
+                    d0 = i*self.rstride + s1*self.cstride
+                    d1 = d0 + (p1 - s1)
+                    k = 0
+                    if type(val) != list:
+                        val = [val]
+                    for j in range(d0,d1):
+                        self.data[j] = val[k]
+                        k = (k + 1) % len(val)
+        else:
+            print('Not a tuple')
 
     # there is also __delitem__
 
@@ -148,11 +176,13 @@ class matrix():
         if type(a) in [int, float]:
             ndata = [self.data[i]*a for i in range(len(self.data))]
             return matrix(ndata, cstride=self.cstride, rstride= self.rstride)
-        #raise NotImplementedError()
-        return NotImplemented
+        raise NotImplementedError()
+        #return NotImplemented
 
-    # This doesn't work??? so __mul__ swaps the arguments for int,floats
+    # uPy int,float __mul__ doesn't seem to implement the NotImplemented
+    # thing so __rmul__ never gets called.
     def __rmul__(self, a):
+        self.__mul__(a)
         # scaler * matrix element by element multiplication
         print("MULT:",type(a))
         if type(a) in [int, float]:
@@ -160,7 +190,8 @@ class matrix():
             return matrix(ndata, cstride=self.cstride, rstride= self.rstride)
 
     def copy(self):
-        return self.data
+        # copy the data, not just a view
+        return matrix([i for i in self.data], cstride=self.cstride, rstride=self.rstride)
     
     def size(self, axis = 0):
         ''' 0 entries
@@ -211,12 +242,86 @@ def eye(m):
         Z[i,i] = 1
     return Z
 
+def echelon(x):
+    ''' Returns [det(x) and inv(x)]
+
+        Operates on a copy of x
+        Using elementary row operations convert X to an upper matrix
+        the product of the diagonal = det(X)
+        Continue to convert X to the identity matrix
+        All the operation carried out on the original identity matrix
+        makes it the inverse of X
+    '''
+    assert x.is_square, 'must be a square matrix'
+    # divide each row element by [0] to give a one in the first position
+    # (may have to find a row to switch with if first element is 0)
+    x = x.copy()
+    inverse = eye(x.length)
+    sign = 1
+    factors = []
+    p = 0
+    while p < x.length:
+        #print_matrix(x)
+        d = x[p, p]
+        if abs(d) < 1e-30:
+            # pivot == 0 need to swap a row
+            # need to check if swap row also has a zero at the same position
+            print('p=',p)
+            np = 1
+            while (p+np) < x.length and x[p+np, p] < 1e-30:
+                np = np + 1
+                print('trying', np)
+            if (p+np) == x.length:
+                # singular
+                print('giving up', p+np)
+                return [0, []]
+            # swap rows
+            # need to implement row and column __setitem__
+            z = x[p+np]
+            x[p+np] = x[p]
+            x[p] = z
+            # do identity
+            z = inverse[p+np]
+            inverse[p+np] = inverse[p]
+            inverse[p] = z
+            # change sign of det
+            sign = -sign
+            continue
+        factors.append(d)
+        # change target row
+        for n in range(p,len(x)):
+            x[p][n] = x[p][n] / d
+        # need to do the entire row for the inverse
+        for n in range(len(x)):
+            inverse[p][n] = inverse[p][n] / d
+        # eliminate position in the following rows
+        for i in range(p+1,len(x)):
+            # multiplier is that column entry
+            t = x[i][p]
+            for j in range(p,len(x)):
+                x[i][j] = x[i][j] - (t * x[p][j])
+            for j in range(len(x)):
+                inverse[i][j] = inverse[i][j] - (t * inverse[p][j])
+        p = p + 1
+    s = sign
+    for i in factors:
+        s = s * i # determinant
+    # travel through the rows eliminating upper diagonal non-zero values
+    for i in range(len(x)-1):
+        # final row should already be all zeros except for the final position
+        for p in range(i+1,len(x)):
+            # multiplier is that column entry
+            t = x[i][p]
+            for j in range(i+1,len(x)):
+                x[i][j] = x[i][j] - (t * x[p][j])
+            for j in range(len(x)):
+                inverse[i][j] = inverse[i][j] - (t * inverse[p][j])
+    return [s, inverse]
+
 def tests():
 
     x10 = matrix([[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]])
 
-    print("as data")
-    print_matrix(x10.mat)
     print("as a matrix")
     print(x10)
     print("Is square")
@@ -244,6 +349,10 @@ def tests():
     #mx1 = matrix(2,6,[1.2,2,3,5,0,3,4,5,6,3,2,6.5])
     #my1 = matrix(2,6,[4,5,6,3,2,6.5,1.2,2,3,5,0,3])
     #print(mmatxmat(mx1,my1))
+    print('x10*2')
+    print(x10*2)
+    print('2*x10')
+    print(2*x10)
 
 def main():
 

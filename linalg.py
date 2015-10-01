@@ -115,7 +115,10 @@ class matrix():
             # get the slice_to_offsets and run through the submatrix assigning
             # values from val using mod on he rows and columns
             if (type(index[0]) == int) and (type(index[1]) == int):
-                self.data[index[0]*self.rstride + index[1]*self.cstride] = val
+                if val in [int, float]:
+                    self.data[index[0]*self.rstride + index[1]*self.cstride] = val
+                else:
+                    raise ValueError('setting an array element with a sequence.')
             else:
                 print(type(index[0]), type(index[1]))
                 if isinstance(index[0], int):
@@ -133,9 +136,11 @@ class matrix():
                     d0 = i*self.rstride + s1*self.cstride
                     d1 = d0 + (p1 - s1)
                     k = 0
-                    if type(val) != list:
+                    if type(val) == matrix:
+                        val = val.data
+                    elif type(val) != list:
                         val = [val]
-                    for j in range(d0,d1):
+                    for j in range(d0,d1+1):
                         self.data[j] = val[k]
                         k = (k + 1) % len(val)
         else:

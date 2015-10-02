@@ -105,46 +105,52 @@ class matrix():
         else:
             return z
 
+    def make_a_slice(self, i):
+        return i
+
     def __setitem__(self, index, val):
         print("index",index, type(val))
-        if type(index) == tuple:
-            # int and int => single entry gets changed (if val in [int,float])
-            # int and slice => row and columns take on val if val fits integrly
-            # slice and int
-            # slice and slice
-            # get the slice_to_offsets and run through the submatrix assigning
-            # values from val using mod on he rows and columns
-            if (type(index[0]) == int) and (type(index[1]) == int):
-                if val in [int, float]:
-                    self.data[index[0]*self.rstride + index[1]*self.cstride] = val
-                else:
-                    raise ValueError('setting an array element with a sequence.')
+        if type(index) != tuple:
+            # need to make it a slice without the slice function
+            index = self.make_a_slice(self[index,:])
+            print(index)
+            raise NotImplementedError('Need to use the slice [1,:] format.')
+        #else:
+        # int and int => single entry gets changed (if val in [int,float])
+        # int and slice => row and columns take on val if val fits integrly
+        # slice and int
+        # slice and slice
+        # get the slice_to_offsets and run through the submatrix assigning
+        # values from val using mod on the rows and columns
+        if (type(index[0]) == int) and (type(index[1]) == int):
+            if type(val) in [int, float]:
+                self.data[index[0]*self.rstride + index[1]*self.cstride] = val
             else:
-                print(type(index[0]), type(index[1]))
-                if isinstance(index[0], int):
-                    s0 = index[0]
-                    p0 = s0+1
-                else: # slice
-                    s0, p0 = self.slice_indices(index[0])
-                if isinstance(index[1], int):
-                    s1 = index[1]
-                    p1 = s1+1
-                else: #slice
-                    s1, p1 = self.slice_indices(index[1])
-                print(s0, p0, s1, p1)
-                for i in range(s0, p0):
-                    d0 = i*self.rstride + s1*self.cstride
-                    d1 = d0 + (p1 - s1)
-                    k = 0
-                    if type(val) == matrix:
-                        val = val.data
-                    elif type(val) != list:
-                        val = [val]
-                    for j in range(d0,d1+1):
-                        self.data[j] = val[k]
-                        k = (k + 1) % len(val)
+                raise ValueError('setting an array element with a sequence.')
         else:
-            print('Not a tuple')
+            print(type(index[0]), type(index[1]))
+            if isinstance(index[0], int):
+                s0 = index[0]
+                p0 = s0+1
+            else: # slice
+                s0, p0 = self.slice_indices(index[0])
+            if isinstance(index[1], int):
+                s1 = index[1]
+                p1 = s1+1
+            else: #slice
+                s1, p1 = self.slice_indices(index[1])
+            print(s0, p0, s1, p1)
+            for i in range(s0, p0):
+                d0 = i*self.rstride + s1*self.cstride
+                d1 = d0 + (p1 - s1)
+                k = 0
+                if type(val) == matrix:
+                    val = val.data
+                elif type(val) != list:
+                    val = [val]
+                for j in range(d0,d1):
+                    self.data[j] = val[k]
+                    k = (k + 1) % len(val)
 
     # there is also __delitem__
 
@@ -155,7 +161,7 @@ class matrix():
         l = 0
         for i in self.data:
             l = max(l, len(repr(i)))
-        s = 'mat({'
+        s = 'mat(['
         r = 0
         for i in range(self.m):
             c = 0
@@ -171,7 +177,7 @@ class matrix():
             else:
                 s = s + ']'
             r = r + self.rstride
-        s = s + '})'
+        s = s + '])'
         return s
 
 
@@ -247,8 +253,8 @@ def eye(m):
         Z[i,i] = 1
     return Z
 
-def echelon(x):
-    ''' Returns [det(x) and inv(x)]
+def det_inv(x):
+    ''' Returns (det(x) and inv(x))
 
         Operates on a copy of x
         Using elementary row operations convert X to an upper matrix
@@ -281,51 +287,58 @@ def echelon(x):
                 print('giving up', p+np)
                 return [0, []]
             # swap rows
-            # need to implement row and column __setitem__
             z = x[p+np]
-            x[p+np] = x[p]
-            x[p] = z
+            x[p+np,:] = x[p]
+            x[p,:] = z
             # do identity
             z = inverse[p+np]
-            inverse[p+np] = inverse[p]
-            inverse[p] = z
+            inverse[p+np,:] = inverse[p]
+            inverse[p,:] = z
             # change sign of det
             sign = -sign
             continue
         factors.append(d)
         # change target row
-        for n in range(p,len(x)):
-            x[p][n] = x[p][n] / d
+        for n in range(p,x.length):
+            x[p,n] = x[p,n] / d
         # need to do the entire row for the inverse
-        for n in range(len(x)):
-            inverse[p][n] = inverse[p][n] / d
+        for n in range(x.length):
+            inverse[p,n] = inverse[p,n] / d
         # eliminate position in the following rows
-        for i in range(p+1,len(x)):
+        for i in range(p+1,x.length):
             # multiplier is that column entry
-            t = x[i][p]
-            for j in range(p,len(x)):
-                x[i][j] = x[i][j] - (t * x[p][j])
-            for j in range(len(x)):
-                inverse[i][j] = inverse[i][j] - (t * inverse[p][j])
+            t = x[i,p]
+            for j in range(p,x.length):
+                x[i,j] = x[i,j] - (t * x[p,j])
+            for j in range(x.length):
+                inverse[i,j] = inverse[i,j] - (t * inverse[p,j])
         p = p + 1
     s = sign
     for i in factors:
         s = s * i # determinant
     # travel through the rows eliminating upper diagonal non-zero values
-    for i in range(len(x)-1):
+    for i in range(x.length-1):
         # final row should already be all zeros except for the final position
-        for p in range(i+1,len(x)):
+        for p in range(i+1,x.length):
             # multiplier is that column entry
-            t = x[i][p]
-            for j in range(i+1,len(x)):
-                x[i][j] = x[i][j] - (t * x[p][j])
-            for j in range(len(x)):
-                inverse[i][j] = inverse[i][j] - (t * inverse[p][j])
-    return [s, inverse]
+            t = x[i,p]
+            for j in range(i+1,x.length):
+                x[i,j] = x[i,j] - (t * x[p,j])
+            for j in range(x.length):
+                inverse[i,j] = inverse[i,j] - (t * inverse[p,j])
+    return (s, inverse)
 
 def tests():
 
     x10 = matrix([[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]])
+    # det_inv test
+    # det = 24.0
+    # x^-1 = mat([[-0.25              , 0.25               , -0.5               , 0.25               ],
+    #             [0.6666666666666667 , -0.4999999999999999, 0.5000000000000001 , -0.1666666666666667],
+    #             [0.1666666666666667 , -0.4999999999999999, 1.0                , -0.1666666666666667],
+    #             [0.4166666666666667 , 0.2500000000000001 , 0.5000000000000001 , -0.4166666666666667]])
+    x = matrix([[3.,2.,0.,1.],[4.,0.,1.,2.],[3.,0.,2.,1.],[9.,2.,3.,1.]])
+    
 
     print("as a matrix")
     print(x10)

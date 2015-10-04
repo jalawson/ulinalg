@@ -1,4 +1,4 @@
-class matrix():
+class matrix(object):
 
     def __init__(self, data, cstride = 0, rstride = 0):
         print("__init__",data)
@@ -37,6 +37,13 @@ class matrix():
         print("cstride, rstride", self.cstride, self.rstride)
         print("m , n", self.m, self.n)
         print(self.data)
+
+    def __eq__(self, other):
+        d = all([self.data[i] == other.data[i]] for i in range(self.size()))
+        return d and (self.shape == other.shape)
+
+    def _ne__(self, other):
+        return not self.__eq__(self, other)
 
     def __iter__(self):
         self.cur = 0
@@ -328,7 +335,7 @@ def det_inv(x):
                 inverse[i,j] = inverse[i,j] - (t * inverse[p,j])
     return (s, inverse)
 
-def tests():
+def s():
 
     x10 = matrix([[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]])
     # det_inv test
@@ -372,9 +379,32 @@ def tests():
     print('2*x10')
     print(2*x10)
 
+def det_inv_test():
+    # det_inv test
+    # det = 24.0
+    # x^-1 = mat([[-0.25              , 0.25               , -0.5               , 0.25               ],
+    #             [0.6666666666666667 , -0.4999999999999999, 0.5000000000000001 , -0.1666666666666667],
+    #             [0.1666666666666667 , -0.4999999999999999, 1.0                , -0.1666666666666667],
+    #             [0.4166666666666667 , 0.2500000000000001 , 0.5000000000000001 , -0.4166666666666667]])
+    x = matrix([[3.,2.,0.,1.],[4.,0.,1.,2.],[3.,0.,2.,1.],[9.,2.,3.,1.]])
+    (d,i) = det_inv(x)
+    #assert d == 24.0
+    print(x == matrix([[3.,2.,0.,1.],[4.,0.,1.,2.],[3.,0.,2.,1.],[9.,2.,3.,1.]]))
+    """
+    assert is_almost_equal(i, mat([[-0.25              , 0.25               , -0.5               , 0.25               ],
+                 [0.6666666666666667 , -0.4999999999999999, 0.5000000000000001 , -0.1666666666666667],
+                 [0.1666666666666667 , -0.4999999999999999, 1.0                , -0.1666666666666667],
+                 [0.4166666666666667 , 0.2500000000000001 , 0.5000000000000001 , -0.4166666666666667]])
+                 )
+    """
+
+    y = matrix([[3.,2.,0.,1.],[4.,0.,1.,2.],[3.,0.,2.,1.],[9.,2.,3.,1.]])
+    print(x == y)
+
+
 def main():
 
-    tests()
+    det_inv_test()
 
 if __name__ == "__main__":
     main()

@@ -42,7 +42,7 @@ class matrix(object):
         d = all([self.data[i] == other.data[i]] for i in range(self.size()))
         return d and (self.shape == other.shape)
 
-    def _ne__(self, other):
+    def __ne__(self, other):
         return not self.__eq__(self, other)
 
     def __iter__(self):
@@ -97,6 +97,9 @@ class matrix(object):
                 p1 = s1+1
             else: #slice
                 s1, p1 = self.slice_indices(index[1])
+        elif type(index) == list:
+            # list of indices etc
+            raise NotImplementedError('Fancy indexing') 
         else:
             # type is int? This will return a row
             s0 = index

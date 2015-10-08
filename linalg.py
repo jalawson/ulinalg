@@ -338,6 +338,17 @@ def det_inv(x):
                 inverse[i,j] = inverse[i,j] - (t * inverse[p,j])
     return (s, inverse)
 
+def dot(X,Y):
+    # assume X is a row vector for now
+    Z = []
+    for k in range(X.size(1)):
+        for i in range(X.size(2)):
+            s = 0
+            for j in range(Y.size(2)):
+                s = s + (X[k,j] * Y[j,i])
+            Z.append(s)
+    return matrix(Z, cstride=1, rstride=3)
+
 def s():
 
     x10 = matrix([[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]])

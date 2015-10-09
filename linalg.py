@@ -1,7 +1,6 @@
 class matrix(object):
 
     def __init__(self, data, cstride = 0, rstride = 0):
-        print("__init__",data)
         # data can be of the form
         # x = array(2) -> array(2) acts like a scaler
         # x = array([2]) -> array([2]) vector
@@ -9,7 +8,6 @@ class matrix(object):
         # x = array([[1,2,3]]) -> array matrix shape (1x3)
         #self.mat = data
         # if cstride != 0 then interpret data as cstride and rstride
-        print(cstride, rstride)
         if cstride != 0:
             if cstride == 1:
                 self.n = rstride
@@ -34,9 +32,9 @@ class matrix(object):
             self.data = [data[i][j] for i in range(self.m) for j in range(self.n)]
             self.cstride = 1
             self.rstride = self.n
-        print("cstride, rstride", self.cstride, self.rstride)
-        print("m , n", self.m, self.n)
-        print(self.data)
+        #print("cstride, rstride", self.cstride, self.rstride)
+        #print("m , n", self.m, self.n)
+        #print(self.data)
 
     def __eq__(self, other):
         d = all([self.data[i] == other.data[i]] for i in range(self.size()))
@@ -62,7 +60,6 @@ class matrix(object):
             d0 = i*self.rstride + c0*self.cstride
             d1 = d0 + (c1 - c0)
             nd.extend(self.data[d0:d1])
-            print(d0, d1, self.data[d0:d1])
         return matrix(nd, cstride=1, rstride=(c1-c0))
 
     def slice_indices(self, index):
@@ -71,7 +68,7 @@ class matrix(object):
         #     midx = index[0].indices(self.m)
         #     nidx = index[1].indices(self.n)
         st = str(index).split(',')
-        print(st[0][6:], st[1][1:])
+        #print(st[0][6:], st[1][1:])
         if st[0][6:] == 'None':
             s0 = 0
             p0 = self.m
@@ -81,7 +78,7 @@ class matrix(object):
         return (s0, p0)
 
     def __getitem__(self, index):
-        print(index, type(index))
+        #print(index, type(index))
         if type(index) == tuple:
             # int and int
             # int and slice
@@ -106,7 +103,7 @@ class matrix(object):
             p0 = s0 + 1
             s1 = 0
             p1 = self.n
-        print(s0, p0, s1, p1)
+        #print(s0, p0, s1, p1)
         # resultant matrix
         z = self.slice_to_offset(s0, p0, s1, p1)
         # if it's a single entry then return that entry as int, float etc.
@@ -119,11 +116,10 @@ class matrix(object):
         return i
 
     def __setitem__(self, index, val):
-        print("index",index, type(val))
+        #print("index",index, type(val))
         if type(index) != tuple:
             # need to make it a slice without the slice function
             index = self.make_a_slice(self[index,:])
-            print(index)
             raise NotImplementedError('Need to use the slice [1,:] format.')
         #else:
         # int and int => single entry gets changed (if val in [int,float])
@@ -149,7 +145,6 @@ class matrix(object):
                 p1 = s1+1
             else: #slice
                 s1, p1 = self.slice_indices(index[1])
-            print(s0, p0, s1, p1)
             for i in range(s0, p0):
                 d0 = i*self.rstride + s1*self.cstride
                 d1 = d0 + (p1 - s1)
@@ -193,19 +188,18 @@ class matrix(object):
 
     def __mul__(self, a):
         # matrix * scaler element by element multiplication
-        print("MULT:",type(a))
+        #print("MULT:",type(a))
         if type(a) in [int, float]:
             ndata = [self.data[i]*a for i in range(len(self.data))]
             return matrix(ndata, cstride=self.cstride, rstride= self.rstride)
         raise NotImplementedError()
-        #return NotImplemented
 
     # uPy int,float __mul__ doesn't seem to implement the NotImplemented
     # thing so __rmul__ never gets called.
     def __rmul__(self, a):
         self.__mul__(a)
         # scaler * matrix element by element multiplication
-        print("MULT:",type(a))
+        #print("RMULT:",type(a))
         if type(a) in [int, float]:
             ndata = [self.data[i]*a for i in range(len(self.data))]
             return matrix(ndata, cstride=self.cstride, rstride= self.rstride)
@@ -242,15 +236,6 @@ class matrix(object):
         return matrix(self.data, cstride = self.rstride, rstride = self.cstride)
 
 # matrix version operations
-def mdot(x,y):
-    print(x, y)
-    #return sum([x[0,m]*y[m,0] for m in range(x.size(1))])
-    return sum([x[0,m]*y[0,m] for m in range(x.size(1))])
-
-def mmatxmat(x,y):
-    #y = y.transpose()
-    return [[ mdot(i,j) for j in y] for i in x]
-
 def zeros(m, n):
     return matrix([[0 for i in range(n)] for j in range(m)])
 
@@ -282,19 +267,15 @@ def det_inv(x):
     factors = []
     p = 0
     while p < x.length:
-        #print_matrix(x)
         d = x[p, p]
         if abs(d) < 1e-30:
             # pivot == 0 need to swap a row
             # need to check if swap row also has a zero at the same position
-            print('p=',p)
             np = 1
             while (p+np) < x.length and x[p+np, p] < 1e-30:
                 np = np + 1
-                print('trying', np)
             if (p+np) == x.length:
                 # singular
-                print('giving up', p+np)
                 return [0, []]
             # swap rows
             z = x[p+np]
@@ -340,6 +321,7 @@ def det_inv(x):
 
 def dot(X,Y):
     # assume X is a row vector for now
+    assert X.size(2) == Y.size(1), 'shapes not aligned'
     Z = []
     for k in range(X.size(1)):
         for i in range(X.size(2)):

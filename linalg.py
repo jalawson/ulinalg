@@ -195,7 +195,7 @@ class matrix(object):
             # dot product each row.col
             # result will be x.size(2)xy.size(1)
             print('matrix*matrix')
-            ndata = [[sum(self[k,j]*a[j,i] for j in range(self.m)) for i in range(self.n)] for k in range(self.m)]
+            ndata = [[sum(self[k,j]*a[j,i] for j in range(self.n)) for i in range(self.n)] for k in range(self.m)]
             return matrix(ndata)
         raise NotImplementedError()
 

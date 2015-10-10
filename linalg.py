@@ -185,13 +185,18 @@ class matrix(object):
         s = s + '])'
         return s
 
-
     def __mul__(self, a):
         # matrix * scaler element by element multiplication
         #print("MULT:",type(a))
         if type(a) in [int, float]:
             ndata = [self.data[i]*a for i in range(len(self.data))]
             return matrix(ndata, cstride=self.cstride, rstride= self.rstride)
+        elif (type(a) == matrix):
+            # dot product each row.col
+            # result will be x.size(2)xy.size(1)
+            print('matrix*matrix')
+            ndata = [[sum(self[k,j]*a[j,i] for j in range(self.m)) for i in range(self.n)] for k in range(self.m)]
+            return matrix(ndata)
         raise NotImplementedError()
 
     # uPy int,float __mul__ doesn't seem to implement the NotImplemented

@@ -37,7 +37,7 @@ class matrix(object):
         #print(self.data)
 
     def __eq__(self, other):
-        d = all([self.data[i] == other.data[i]] for i in range(self.size()))
+        d = all([self.data[i] == other.data[i] for i in range(self.size())])
         return d and (self.shape == other.shape)
 
     def __ne__(self, other):

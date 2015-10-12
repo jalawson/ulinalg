@@ -334,7 +334,7 @@ def dot(X,Y):
             for j in range(Y.size(2)):
                 s = s + (X[k,j] * Y[j,i])
             Z.append(s)
-    return matrix(Z, cstride=1, rstride=3)
+    return matrix(Z, cstride=1, rstride=Y.size(2))
 
 def s():
 

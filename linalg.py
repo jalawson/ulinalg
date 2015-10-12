@@ -1,3 +1,5 @@
+x = None
+
 class matrix(object):
 
     def __init__(self, data, cstride = 0, rstride = 0):
@@ -210,34 +212,30 @@ class matrix(object):
             return matrix(ndata, cstride=self.cstride, rstride= self.rstride)
 
     def copy(self):
-        # copy the data, not just a view
+        """ Return a copy of matrix, not just a view """
         return matrix([i for i in self.data], cstride=self.cstride, rstride=self.rstride)
     
     def size(self, axis = 0):
-        ''' 0 entries
+        """ 0 entries
             1 rows
             2 columns
-        '''
+        """
         return [self.m*self.n, self.m, self.n][axis]
 
     @property
     def length(self):
         return self.m
 
-    @property         
+    @property
     def shape(self):
-        # returns True if x is square
         return (self.m, self.n)
 
-    @property         
+    @property
     def is_square(self):
-        # returns True if x is square
         return self.m == self.n
 
     def transpose(self):
-        """ Returns a view """
-        # this returns a new matrix object
-        #return matrix([[self.data[j][i] for j in range(self.m)] for i in range(self.n)])
+        """ Return a view """
         return matrix(self.data, cstride = self.rstride, rstride = self.cstride)
 
 # matrix version operations
@@ -254,7 +252,7 @@ def eye(m):
     return Z
 
 def det_inv(x):
-    ''' Returns (det(x) and inv(x))
+    ''' Return (det(x) and inv(x))
 
         Operates on a copy of x
         Using elementary row operations convert X to an upper matrix
@@ -337,6 +335,8 @@ def dot(X,Y):
     return matrix(Z, cstride=1, rstride=Y.size(2))
 
 def s():
+
+    global x
 
     x10 = matrix([[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]])
     # det_inv test

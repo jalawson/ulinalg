@@ -320,6 +320,12 @@ def det_inv(x):
                 inverse[i,j] = inverse[i,j] - (t * inverse[p,j])
     return (s, inverse)
 
+def pinv(X):
+    """ Calculates the pseudo inverse Adagger = (A'A)^-1.A' """
+    Xt = X.transpose()
+    d,Z = det_inv(dot(Xt,X))
+    return dot(Z,Xt)
+
 def dot(X,Y):
     # assume X is a row vector for now
     assert X.size(2) == Y.size(1), 'shapes not aligned'
@@ -328,7 +334,6 @@ def dot(X,Y):
         for j in range(Y.size(2)):
             s = 0
             for i in range(Y.size(1)):
-                print(k,i,j)
                 s = s + (X[k,i] * Y[i,j])
             Z.append(s)
     return matrix(Z, cstride=1, rstride=Y.size(2))

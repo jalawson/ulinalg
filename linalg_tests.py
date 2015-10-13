@@ -32,9 +32,12 @@ def s():
     result['matrix scaler multiplication'] = matrix_compare(x10*2, linalg.matrix([[0, 2, 4, 6],[8, 10, 12, 14],[16, 18, 20, 22],[24, 26, 28, 30]]))
     result['row dot matrix 1x3 . 3x3'] = matrix_compare(linalg.dot(y_row,x1), linalg.matrix([[ 0.71, -0.71,  1.7 ]]))
     try:
-        result['row dot matrix 3x3 . 3x1'] = matrix_compare(linalg.dot(x1,y_col), linalg.matrix([1.41, 1.21,  1.0], cstride=1, rstride=1))
+        result['matrix dot col 3x3 . 3x1'] = matrix_compare(linalg.dot(x1,y_col), linalg.matrix([1.41, 1.21,  1.0], cstride=1, rstride=1))
     except:
-        result['row dot matrix 3x3 . 3x1'] = False
+        result['matrix dot col 3x3 . 3x1'] = False
+    result['psuedo inverse'] = matrix_compare(linalg.pinv(x1), linalg.matrix([[0.7042253521126759   , 0.704225352112676    , -0.8450704225352109  ],
+                                                                              [-0.704225352112676   , 0.704225352112676    , 0.1408450704225352   ],
+                                                                              [1.110223024625157e-16, 5.551115123125783e-17, 0.9999999999999998   ]]))
     return result
 
 def det_inv_test():

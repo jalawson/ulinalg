@@ -325,10 +325,11 @@ def dot(X,Y):
     assert X.size(2) == Y.size(1), 'shapes not aligned'
     Z = []
     for k in range(X.size(1)):
-        for i in range(X.size(2)):
+        for j in range(Y.size(2)):
             s = 0
-            for j in range(Y.size(2)):
-                s = s + (X[k,j] * Y[j,i])
+            for i in range(Y.size(1)):
+                print(k,i,j)
+                s = s + (X[k,i] * Y[i,j])
             Z.append(s)
     return matrix(Z, cstride=1, rstride=Y.size(2))
 

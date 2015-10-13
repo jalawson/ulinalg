@@ -13,6 +13,9 @@ def s():
 
     x11 = linalg.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
     x10 = linalg.matrix([[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]])
+    x1 = linalg.matrix([[0.71,-0.71,0.7],[0.71,0.71,0.5],[0,0,1]])
+    y_row = linalg.matrix([[1,0,1]])
+    y_col = linalg.matrix([1, 0, 1], cstride=1, rstride=1)
 
     result['square_test_1'] = x10.is_square
     result['square_test_2'] = not x11.is_square
@@ -27,6 +30,11 @@ def s():
     except:
         result['scaler matrix multiplication'] = False
     result['matrix scaler multiplication'] = matrix_compare(x10*2, linalg.matrix([[0, 2, 4, 6],[8, 10, 12, 14],[16, 18, 20, 22],[24, 26, 28, 30]]))
+    result['row dot matrix 1x3 . 3x3'] = matrix_compare(linalg.dot(y_row,x1), linalg.matrix([[ 0.71, -0.71,  1.7 ]]))
+    try:
+        result['row dot matrix 3x3 . 3x1'] = matrix_compare(linalg.dot(x1,y_col), linalg.matrix([1.41, 1.21,  1.0], cstride=1, rstride=1))
+    except:
+        result['row dot matrix 3x3 . 3x1'] = False
     return result
 
 def det_inv_test():

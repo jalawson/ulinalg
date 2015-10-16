@@ -32,9 +32,9 @@ class matrix(object):
             self.data = [data[i][j] for i in range(self.m) for j in range(self.n)]
             self.cstride = 1
             self.rstride = self.n
-        #print("cstride, rstride", self.cstride, self.rstride)
-        #print("m , n", self.m, self.n)
-        #print(self.data)
+
+    def __len__(self):
+        return self.m
 
     def __eq__(self, other):
         d = all([self.data[i] == other.data[i] for i in range(self.size())])
@@ -50,7 +50,7 @@ class matrix(object):
     def __next__(self):
         if self.cur >= self.m:
             raise StopIteration
-        self.cur = self.cur + 1
+        self.cur += 1
         return matrix([self.data[self.cur-1]])
 
     def slice_to_offset(self, r0, r1, c0, c1):
@@ -68,7 +68,6 @@ class matrix(object):
         #     midx = index[0].indices(self.m)
         #     nidx = index[1].indices(self.n)
         st = str(index).split(',')
-        #print(st[0][6:], st[1][1:])
         if st[0][6:] == 'None':
             s0 = 0
             p0 = self.m
@@ -78,7 +77,6 @@ class matrix(object):
         return (s0, p0)
 
     def __getitem__(self, index):
-        #print(index, type(index))
         if type(index) == tuple:
             # int and int
             # int and slice
@@ -103,7 +101,6 @@ class matrix(object):
             p0 = s0 + 1
             s1 = 0
             p1 = self.n
-        #print(s0, p0, s1, p1)
         # resultant matrix
         z = self.slice_to_offset(s0, p0, s1, p1)
         # if it's a single entry then return that entry as int, float etc.
@@ -220,6 +217,7 @@ class matrix(object):
         """
         return [self.m*self.n, self.m, self.n][axis]
 
+    # to be replaced by def len(self)
     @property
     def length(self):
         return self.m
@@ -227,6 +225,17 @@ class matrix(object):
     @property
     def shape(self):
         return (self.m, self.n)
+
+    @shape.setter
+    def shape(self, nshape):
+        """ check for proper length """
+        if (nshape[0]*nshape[1]) == self.size():
+            self.m, self.n = nshape
+            self.cstride = 1
+            self.rstride = self.n
+        else:
+            raise ValueError('total size of new matrix must be unchanged')
+        return self
 
     @property
     def is_square(self):
@@ -274,7 +283,7 @@ def det_inv(x):
             # need to check if swap row also has a zero at the same position
             np = 1
             while (p+np) < x.length and x[p+np, p] < 1e-30:
-                np = np + 1
+                np += 1
             if (p+np) == x.length:
                 # singular
                 return [0, []]
@@ -304,7 +313,7 @@ def det_inv(x):
                 x[i,j] = x[i,j] - (t * x[p,j])
             for j in range(x.length):
                 inverse[i,j] = inverse[i,j] - (t * inverse[p,j])
-        p = p + 1
+        p += 1
     s = sign
     for i in factors:
         s = s * i # determinant

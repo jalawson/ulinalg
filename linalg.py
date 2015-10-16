@@ -239,6 +239,12 @@ class matrix(object):
     def is_square(self):
         return self.m == self.n
 
+    def reshape(self, nshape):
+        """ check for proper length """
+        X = self.copy()
+        X.shape = nshape
+        return X
+
     def transpose(self):
         """ Return a view """
         return matrix(self.data, cstride = self.rstride, rstride = self.cstride)
@@ -334,16 +340,17 @@ def pinv(X):
     return dot(Z,Xt)
 
 def dot(X,Y):
-    # assume X is a row vector for now
-    assert X.size(2) == Y.size(1), 'shapes not aligned'
-    Z = []
-    for k in range(X.size(1)):
-        for j in range(Y.size(2)):
-            s = 0
-            for i in range(Y.size(1)):
-                s = s + (X[k,i] * Y[i,j])
-            Z.append(s)
-    return matrix(Z, cstride=1, rstride=Y.size(2))
+    if X.size(2) == Y.size(1):
+        Z = []
+        for k in range(X.size(1)):
+            for j in range(Y.size(2)):
+                s = 0
+                for i in range(Y.size(1)):
+                    s = s + (X[k,i] * Y[i,j])
+                Z.append(s)
+        return matrix(Z, cstride=1, rstride=Y.size(2))
+    else:
+        raise ValueError('shapes not aligned')
 
 def main():
 

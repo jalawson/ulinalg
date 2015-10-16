@@ -25,9 +25,15 @@ def s():
     result['extract a col'] = matrix_compare(x10[:,1], linalg.matrix([1, 5, 9, 13], cstride=1, rstride=1))
     result['extract rows'] = matrix_compare(x10[1:4,:], linalg.matrix([[4, 5, 6, 7],[8, 9, 10, 11],[12, 13, 14, 15]]))
     result['extract columns'] = matrix_compare(x10[:,1:4], linalg.matrix([[1, 2, 3],[5, 6, 7],[9, 10, 11],[13, 14, 15]]))
+    # check for shape change view
+    x12 = x11
     result['shape'] = x11.shape == (4, 3)
     x11.shape=(3, 4)
-    result['shape change'] = matrix_compare(x11, linalg.matrix([[0,1,2,4],[5,6,8,9],[10,12,13,14]]))
+    result['shape change'] = matrix_compare(x11, linalg.matrix([[0,1,2,4],[5,6,8,9],[10,12,13,14]])) and (x11 == x12)
+    x11 = linalg.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
+    # check for shape change copy
+    x12 = x11.reshape((3,4))
+    result['shape copy'] = matrix_compare(x12, linalg.matrix([[0,1,2,4],[5,6,8,9],[10,12,13,14]])) and not (x11 == x12)
     x11 = linalg.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
     try:
         result['scaler matrix multiplication'] = matrix_compare(2*x10, linalg.matrix([[0, 2, 4, 6],[8, 10, 12, 14],[16, 18, 20, 22],[24, 26, 28, 30]]))

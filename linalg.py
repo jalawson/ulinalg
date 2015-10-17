@@ -183,16 +183,15 @@ class matrix(object):
         return s
 
     def __mul__(self, a):
-        # matrix * scaler element by element multiplication
-        #print("MULT:",type(a))
+        # matrix * scaler element by scaler multiplication
         if type(a) in [int, float]:
             ndata = [self.data[i]*a for i in range(len(self.data))]
             return matrix(ndata, cstride=self.cstride, rstride= self.rstride)
         elif (type(a) == matrix):
-            # dot product each row.col
-            # result will be x.size(2)xy.size(1)
-            print('matrix*matrix')
-            ndata = [[sum(self[k,j]*a[j,i] for j in range(self.n)) for i in range(self.n)] for k in range(self.m)]
+            # dot product
+            #ndata = [[sum(self[k,j]*a[j,i] for j in range(self.n)) for i in range(self.n)] for k in range(self.m)]
+            # element by element multiplication
+            ndata = [[self[i,j]*a[i,j] for j in range(self.n)] for i in range(self.m)]
             return matrix(ndata)
         raise NotImplementedError()
 
@@ -205,6 +204,9 @@ class matrix(object):
         if type(a) in [int, float]:
             ndata = [self.data[i]*a for i in range(len(self.data))]
             return matrix(ndata, cstride=self.cstride, rstride= self.rstride)
+
+    def __div__(self, a):
+        print('__div__')
 
     def copy(self):
         """ Return a copy of matrix, not just a view """
@@ -244,6 +246,10 @@ class matrix(object):
         X = self.copy()
         X.shape = nshape
         return X
+
+    @property
+    def T(self):
+        return self.transpose()
 
     def transpose(self):
         """ Return a view """

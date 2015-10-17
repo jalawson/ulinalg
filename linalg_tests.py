@@ -17,9 +17,10 @@ def s():
     y_row = linalg.matrix([[1,0,1]])
     y_col = linalg.matrix([1, 0, 1], cstride=1, rstride=1)
 
-    result['square_test_1'] = x10.is_square
-    result['square_test_2'] = not x11.is_square
-    result['transpose_test_square'] = matrix_compare(x10.transpose(), linalg.matrix([[0, 4, 8, 12],[1, 5, 9, 13],[2, 6, 10, 14],[3, 7, 11, 15]]))
+    result['square test 1'] = x10.is_square
+    result['square test 2'] = not x11.is_square
+    result['transpose test square'] = matrix_compare(x10.transpose(), linalg.matrix([[0, 4, 8, 12],[1, 5, 9, 13],[2, 6, 10, 14],[3, 7, 11, 15]]))
+    result['transpose property'] = matrix_compare(x10.T, linalg.matrix([[0, 4, 8, 12],[1, 5, 9, 13],[2, 6, 10, 14],[3, 7, 11, 15]]))
     result['extract single element'] = x10[1,2] == 6
     result['extract a row'] = matrix_compare(x10[1,:], linalg.matrix([[4, 5, 6, 7]]))
     result['extract a col'] = matrix_compare(x10[:,1], linalg.matrix([1, 5, 9, 13], cstride=1, rstride=1))
@@ -39,7 +40,8 @@ def s():
         result['scaler matrix multiplication'] = matrix_compare(2*x10, linalg.matrix([[0, 2, 4, 6],[8, 10, 12, 14],[16, 18, 20, 22],[24, 26, 28, 30]]))
     except:
         result['scaler matrix multiplication'] = False
-    result['matrix scaler multiplication'] = matrix_compare(x10*2, linalg.matrix([[0, 2, 4, 6],[8, 10, 12, 14],[16, 18, 20, 22],[24, 26, 28, 30]]))
+    result['matrix * scaler'] = matrix_compare(x10*2, linalg.matrix([[0, 2, 4, 6],[8, 10, 12, 14],[16, 18, 20, 22],[24, 26, 28, 30]]))
+    result['matrix * matrix elementwise'] = matrix_compare(x11*x11, linalg.matrix([[0, 1, 4],[16, 25, 36],[64, 81, 100],[144, 169, 196]]))
     result['row dot matrix 1x3 . 3x3'] = matrix_compare(linalg.dot(y_row,x1), linalg.matrix([[ 0.71, -0.71,  1.7 ]]))
     try:
         result['matrix dot col 3x3 . 3x1'] = matrix_compare(linalg.dot(x1,y_col), linalg.matrix([1.41, 1.21,  1.0], cstride=1, rstride=1))

@@ -113,7 +113,6 @@ class matrix(object):
         return i
 
     def __setitem__(self, index, val):
-        #print("index",index, type(val))
         if type(index) != tuple:
             # need to make it a slice without the slice function
             index = self.make_a_slice(self[index,:])
@@ -131,7 +130,6 @@ class matrix(object):
             else:
                 raise ValueError('setting an array element with a sequence.')
         else:
-            print(type(index[0]), type(index[1]))
             if isinstance(index[0], int):
                 s0 = index[0]
                 p0 = s0+1
@@ -188,25 +186,42 @@ class matrix(object):
             ndata = [self.data[i]*a for i in range(len(self.data))]
             return matrix(ndata, cstride=self.cstride, rstride= self.rstride)
         elif (type(a) == matrix):
-            # dot product
-            #ndata = [[sum(self[k,j]*a[j,i] for j in range(self.n)) for i in range(self.n)] for k in range(self.m)]
             # element by element multiplication
             ndata = [[self[i,j]*a[i,j] for j in range(self.n)] for i in range(self.m)]
             return matrix(ndata)
         raise NotImplementedError()
 
-    # uPy int,float __mul__ doesn't seem to implement the NotImplemented
-    # thing so __rmul__ never gets called.
     def __rmul__(self, a):
+        ''' uPy int,float __mul__ doesn't seem to implement the NotImplemented
+            thing so __rmul__ never gets called.
+        '''
         self.__mul__(a)
         # scaler * matrix element by element multiplication
-        #print("RMULT:",type(a))
         if type(a) in [int, float]:
             ndata = [self.data[i]*a for i in range(len(self.data))]
             return matrix(ndata, cstride=self.cstride, rstride= self.rstride)
 
-    def __div__(self, a):
-        print('__div__')
+    def __truediv__(self, a):
+        # matrix / scaler element by scaler multiplication
+        if type(a) in [int, float]:
+            try:
+                ndata = [self.data[i]/a for i in range(len(self.data))]
+                return matrix(ndata, cstride=self.cstride, rstride= self.rstride)
+            except ZeroDivisionError:
+                raise ZeroDivisionError('division by zero')
+        else:
+            raise NotImplementedError()
+
+    def __floordiv__(self, a):
+        # matrix / scaler element by scaler multiplication
+        if type(a) in [int, float]:
+            try:
+                ndata = [self.data[i]//a for i in range(len(self.data))]
+                return matrix(ndata, cstride=self.cstride, rstride= self.rstride)
+            except ZeroDivisionError:
+                raise ZeroDivisionError('division by zero')
+        else:
+            raise NotImplementedError()
 
     def copy(self):
         """ Return a copy of matrix, not just a view """

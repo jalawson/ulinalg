@@ -180,6 +180,30 @@ class matrix(object):
         s = s + '])'
         return s
 
+    # Reflected operations are not yet implemented in MicroPython
+
+    def __add__(self, a):
+        # matrix + scaler elementwise scaler adition
+        if type(a) in [int, float]:
+            ndata = [self.data[i]+a for i in range(len(self.data))]
+            return matrix(ndata, cstride=self.cstride, rstride= self.rstride)
+        elif (type(a) == matrix):
+            # element by element multiplication
+            ndata = [[self[i,j]+a[i,j] for j in range(self.n)] for i in range(self.m)]
+            return matrix(ndata)
+        raise NotImplementedError()
+
+    def __sub__(self, a):
+        # matrix - scaler elementwise scaler subtraction
+        if type(a) in [int, float]:
+            ndata = [self.data[i]-a for i in range(len(self.data))]
+            return matrix(ndata, cstride=self.cstride, rstride= self.rstride)
+        elif (type(a) == matrix):
+            # element by element subtraction
+            ndata = [[self[i,j]-a[i,j] for j in range(self.n)] for i in range(self.m)]
+            return matrix(ndata)
+        raise NotImplementedError()
+
     def __mul__(self, a):
         # matrix * scaler element by scaler multiplication
         if type(a) in [int, float]:
@@ -192,8 +216,9 @@ class matrix(object):
         raise NotImplementedError()
 
     def __rmul__(self, a):
-        ''' uPy int,float __mul__ doesn't seem to implement the NotImplemented
-            thing so __rmul__ never gets called.
+        ''' uPy int,float __mul__ does not yet implement the reflected operation call
+            if an operation raises NotImplemented exception
+            so __rmul__ never gets called.
         '''
         self.__mul__(a)
         # scaler * matrix element by element multiplication

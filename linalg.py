@@ -380,12 +380,13 @@ def det_inv(x):
     return (s, inverse)
 
 def pinv(X):
-    """ Calculates the pseudo inverse Adagger = (A'A)^-1.A' """
+    ''' Calculates the pseudo inverse Adagger = (A'A)^-1.A' '''
     Xt = X.transpose()
     d,Z = det_inv(dot(Xt,X))
     return dot(Z,Xt)
 
 def dot(X,Y):
+    ''' Dot product '''
     if X.size(2) == Y.size(1):
         Z = []
         for k in range(X.size(1)):
@@ -394,6 +395,20 @@ def dot(X,Y):
         return matrix(Z, cstride=1, rstride=Y.size(2))
     else:
         raise ValueError('shapes not aligned')
+
+def cross(X, Y):
+    ''' Cross product '''
+    if (X.n in (2, 3)) and (Y.n in (2, 3)):
+        Z = []
+        for k in range(X.m):
+            z = X[k,0]*Y[k,1] - X[k,1]*Y[k,0]
+            if (X.n == 3) and (Y.n == 3):
+                Z.append([X[k,1]*Y[k,2] - X[k,2]*Y[k,1], X[k,2]*Y[k,0] - X[k,0]*Y[k,2], z])
+            else:
+                Z.append([z])
+        return matrix(Z)
+    else:
+        raise ValueError('incompatible dimensions for cross product (must be 2 or 3)')
 
 def main():
 

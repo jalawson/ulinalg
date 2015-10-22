@@ -62,6 +62,20 @@ def s():
                                                                               [1.110223024625157e-16, 5.551115123125783e-17, 0.9999999999999998   ]]))
     return result
 
+def products():
+
+    result = {}
+
+    x = linalg.matrix([[ 3., -2., -2.]])
+    y = linalg.matrix([[-1.,  0.,  5.]])
+    x1 = linalg.matrix([[ 3., -2.]])
+    y1 = linalg.matrix([[-1.,  0.]])
+    result['cross product (x,y)'] = matrix_compare(linalg.cross(x,y), linalg.matrix([[-10.0 , -13.0 , -2.0]]))
+    result['cross product (y,x)'] = matrix_compare(linalg.cross(y,x), linalg.matrix([[10.0 , 13.0 , 2.0]]))
+    result['cross product 2 (x,y)'] = matrix_compare(linalg.cross(x1,y1), linalg.matrix([[-2.0]]))
+    return result
+
+
 def det_inv_test():
     # det_inv test
     # det = 24.0
@@ -84,6 +98,8 @@ total_tests = 0
 total_pass = 0
 final_results = s()
 results = det_inv_test()
+final_results.update(results)
+results = products()
 final_results.update(results)
 for k,v in final_results.items():
     total_tests = total_tests + 1

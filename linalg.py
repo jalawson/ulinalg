@@ -1,12 +1,11 @@
 class matrix(object):
 
-    def __init__(self, data, cstride = 0, rstride = 0):
+    def __init__(self, data, cstride=0, rstride=0):
         # data can be of the form
         # x = array(2) -> array(2) acts like a scaler
         # x = array([2]) -> array([2]) vector
         # x = array([1,2,3]) -> array([1,2,3]) vector length 3
         # x = array([[1,2,3]]) -> array matrix shape (1x3)
-        #self.mat = data
         # if cstride != 0 then interpret data as cstride and rstride
         if cstride != 0:
             if cstride == 1:
@@ -24,7 +23,7 @@ class matrix(object):
             self.n = 1
             if type(data) == int:
                 self.m = 1
-            else: # it is a list
+            else:  # it is a list
                 self.m = len(data)
                 # is data[0] a list
                 if (type(data[0]) == list):
@@ -64,7 +63,8 @@ class matrix(object):
 
     def slice_indices(self, index):
         # this section is to get around the missing slice.indices() method
-        # the following should work when the slice.indices() method is implemented in uPy
+        # the following should work when uPy implements the slice.indices()
+        # method
         #     midx = index[0].indices(self.m)
         #     nidx = index[1].indices(self.n)
         st = str(index).split(',')
@@ -85,16 +85,16 @@ class matrix(object):
             if isinstance(index[0], int):
                 s0 = index[0]
                 p0 = s0+1
-            else: # slice
+            else:  # slice
                 s0, p0 = self.slice_indices(index[0])
             if isinstance(index[1], int):
                 s1 = index[1]
                 p1 = s1+1
-            else: #slice
+            else:  # slice
                 s1, p1 = self.slice_indices(index[1])
         elif type(index) == list:
             # list of indices etc
-            raise NotImplementedError('Fancy indexing') 
+            raise NotImplementedError('Fancy indexing')
         else:
             # type is int? This will return a row
             s0 = index
@@ -115,9 +115,8 @@ class matrix(object):
     def __setitem__(self, index, val):
         if type(index) != tuple:
             # need to make it a slice without the slice function
-            index = self.make_a_slice(self[index,:])
+            index = self.make_a_slice(self[index, :])
             raise NotImplementedError('Need to use the slice [1,:] format.')
-        #else:
         # int and int => single entry gets changed (if val in [int,float])
         # int and slice => row and columns take on val if val fits integrly
         # slice and int
@@ -133,12 +132,12 @@ class matrix(object):
             if isinstance(index[0], int):
                 s0 = index[0]
                 p0 = s0+1
-            else: # slice
+            else:  # slice
                 s0, p0 = self.slice_indices(index[0])
             if isinstance(index[1], int):
                 s1 = index[1]
                 p1 = s1+1
-            else: #slice
+            else:  # slice
                 s1, p1 = self.slice_indices(index[1])
             for i in range(s0, p0):
                 d0 = i*self.rstride + s1*self.cstride
@@ -148,13 +147,13 @@ class matrix(object):
                     val = val.data
                 elif type(val) != list:
                     val = [val]
-                for j in range(d0,d1):
+                for j in range(d0, d1):
                     self.data[j] = val[k]
                     k = (k + 1) % len(val)
 
     # there is also __delitem__
 
-    #def __str__(self):
+    # def __str__(self):
     def __repr__(self):
         # things that use __str__ will fallback to __repr__
         # find max string field size for the matrix elements
@@ -186,7 +185,7 @@ class matrix(object):
         # matrix + scaler elementwise scaler adition
         if type(a) in [int, float]:
             ndata = [self.data[i]+a for i in range(len(self.data))]
-            return matrix(ndata, cstride=self.cstride, rstride= self.rstride)
+            return matrix(ndata, cstride=self.cstride, rstride=self.rstride)
         elif (type(a) == matrix):
             # element by element multiplication
             ndata = [[self[i,j]+a[i,j] for j in range(self.n)] for i in range(self.m)]
@@ -197,7 +196,7 @@ class matrix(object):
         # matrix - scaler elementwise scaler subtraction
         if type(a) in [int, float]:
             ndata = [self.data[i]-a for i in range(len(self.data))]
-            return matrix(ndata, cstride=self.cstride, rstride= self.rstride)
+            return matrix(ndata, cstride=self.cstride, rstride=self.rstride)
         elif (type(a) == matrix):
             # element by element subtraction
             ndata = [[self[i,j]-a[i,j] for j in range(self.n)] for i in range(self.m)]
@@ -208,7 +207,7 @@ class matrix(object):
         # matrix * scaler element by scaler multiplication
         if type(a) in [int, float]:
             ndata = [self.data[i]*a for i in range(len(self.data))]
-            return matrix(ndata, cstride=self.cstride, rstride= self.rstride)
+            return matrix(ndata, cstride=self.cstride, rstride=self.rstride)
         elif (type(a) == matrix):
             # element by element multiplication
             ndata = [[self[i,j]*a[i,j] for j in range(self.n)] for i in range(self.m)]
@@ -224,14 +223,14 @@ class matrix(object):
         # scaler * matrix element by element multiplication
         if type(a) in [int, float]:
             ndata = [self.data[i]*a for i in range(len(self.data))]
-            return matrix(ndata, cstride=self.cstride, rstride= self.rstride)
+            return matrix(ndata, cstride=self.cstride, rstride=self.rstride)
 
     def __truediv__(self, a):
         # matrix / scaler element by scaler multiplication
         if type(a) in [int, float]:
             try:
                 ndata = [self.data[i]/a for i in range(len(self.data))]
-                return matrix(ndata, cstride=self.cstride, rstride= self.rstride)
+                return matrix(ndata, cstride=self.cstride, rstride=self.rstride)
             except ZeroDivisionError:
                 raise ZeroDivisionError('division by zero')
         else:
@@ -242,7 +241,7 @@ class matrix(object):
         if type(a) in [int, float]:
             try:
                 ndata = [self.data[i]//a for i in range(len(self.data))]
-                return matrix(ndata, cstride=self.cstride, rstride= self.rstride)
+                return matrix(ndata, cstride=self.cstride, rstride=self.rstride)
             except ZeroDivisionError:
                 raise ZeroDivisionError('division by zero')
         else:
@@ -251,8 +250,8 @@ class matrix(object):
     def copy(self):
         """ Return a copy of matrix, not just a view """
         return matrix([i for i in self.data], cstride=self.cstride, rstride=self.rstride)
-    
-    def size(self, axis = 0):
+
+    def size(self, axis=0):
         """ 0 entries
             1 rows
             2 columns
@@ -293,20 +292,25 @@ class matrix(object):
 
     def transpose(self):
         """ Return a view """
-        return matrix(self.data, cstride = self.rstride, rstride = self.cstride)
+        return matrix(self.data, cstride=self.rstride, rstride=self.cstride)
+
 
 # matrix version operations
+
 def zeros(m, n):
     return matrix([[0 for i in range(n)] for j in range(m)])
 
+
 def ones(m, n):
     return matrix([[1 for i in range(n)] for j in range(m)])
+
 
 def eye(m):
     Z = zeros(m, m)
     for i in range(m):
         Z[i,i] = 1
     return Z
+
 
 def det_inv(x):
     ''' Return (det(x) and inv(x))
@@ -366,7 +370,7 @@ def det_inv(x):
         p += 1
     s = sign
     for i in factors:
-        s = s * i # determinant
+        s = s * i  # determinant
     # travel through the rows eliminating upper diagonal non-zero values
     for i in range(len(x)-1):
         # final row should already be all zeros except for the final position
@@ -379,11 +383,13 @@ def det_inv(x):
                 inverse[i,j] = inverse[i,j] - (t * inverse[p,j])
     return (s, inverse)
 
+
 def pinv(X):
     ''' Calculates the pseudo inverse Adagger = (A'A)^-1.A' '''
     Xt = X.transpose()
     d,Z = det_inv(dot(Xt,X))
     return dot(Z,Xt)
+
 
 def dot(X,Y):
     ''' Dot product '''
@@ -395,6 +401,7 @@ def dot(X,Y):
         return matrix(Z, cstride=1, rstride=Y.size(2))
     else:
         raise ValueError('shapes not aligned')
+
 
 def cross(X, Y):
     ''' Cross product '''
@@ -412,6 +419,7 @@ def cross(X, Y):
             raise ValueError('shape mismatch')
     else:
         raise ValueError('incompatible dimensions for cross product (must be 2 or 3)')
+
 
 def main():
 

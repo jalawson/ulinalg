@@ -38,15 +38,15 @@ def s():
     x11 = linalg.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
     try:
         result['scaler matrix multiplication'] = matrix_compare(2*x10, linalg.matrix([[0, 2, 4, 6],[8, 10, 12, 14],[16, 18, 20, 22],[24, 26, 28, 30]]))
-    except NameError:
+    except TypeError:
         result['scaler matrix multiplication'] = False
     try:
         result['scaler + matrix'] = matrix_compare(2.1+x10, linalg.matrix([[2.1 , 3.1 , 4.1 , 5.1 ],[6.1 , 7.1 , 8.1 , 9.1 ],[10.1, 11.1, 12.1, 13.1],[14.1, 15.1, 16.1, 17.1]]))
     except TypeError:
         result['scaler + matrix'] = False
     try:
-        result['scaler - matrix'] = matrix_compare(1.4-X10, linalg.matrix([[1.4, 0.3999999999999999, -0.6000000000000001 , -1.6],[-2.6, -3.6, -4.6, -5.6],[-6.6, -7.6, -8.6, -9.6],[-10.6, -11.6, -12.6, -13.6]]))
-    except NameError:
+        result['scaler - matrix'] = matrix_compare(1.4-x10, linalg.matrix([[1.4, 0.3999999999999999, -0.6000000000000001 , -1.6],[-2.6, -3.6, -4.6, -5.6],[-6.6, -7.6, -8.6, -9.6],[-10.6, -11.6, -12.6, -13.6]]))
+    except TypeError:
         result['scaler - matrix'] = False
     result['matrix + scaler'] = matrix_compare(x10+2.1, linalg.matrix([[2.1 , 3.1 , 4.1 , 5.1 ],[6.1 , 7.1 , 8.1 , 9.1 ],[10.1, 11.1, 12.1, 13.1],[14.1, 15.1, 16.1, 17.1]]))
     result['matrix - scaler'] = matrix_compare(x10-1.4, linalg.matrix([[-1.4, -0.3999999999999999, 0.6000000000000001 , 1.6],[2.6, 3.6, 4.6, 5.6],[6.6, 7.6, 8.6, 9.6],[10.6, 11.6, 12.6, 13.6]]))

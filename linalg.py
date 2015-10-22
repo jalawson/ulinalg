@@ -192,6 +192,9 @@ class matrix(object):
             return matrix(ndata)
         raise NotImplementedError()
 
+    def __radd__(self, a):
+        return self.__add__(a)
+
     def __sub__(self, a):
         # matrix - scaler elementwise scaler subtraction
         if type(a) in [int, float]:
@@ -201,6 +204,13 @@ class matrix(object):
             # element by element subtraction
             ndata = [[self[i,j]-a[i,j] for j in range(self.n)] for i in range(self.m)]
             return matrix(ndata)
+        raise NotImplementedError()
+
+    def __rsub__(self, a):
+        # scaler - matrix elementwise scaler subtraction
+        if type(a) in [int, float]:
+            ndata = [a - self.data[i] for i in range(len(self.data))]
+            return matrix(ndata, cstride=self.cstride, rstride=self.rstride)
         raise NotImplementedError()
 
     def __mul__(self, a):
@@ -219,7 +229,6 @@ class matrix(object):
             if an operation raises NotImplemented exception
             so __rmul__ never gets called.
         '''
-        self.__mul__(a)
         # scaler * matrix element by element multiplication
         if type(a) in [int, float]:
             ndata = [self.data[i]*a for i in range(len(self.data))]

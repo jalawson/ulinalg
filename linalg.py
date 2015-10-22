@@ -390,10 +390,7 @@ def dot(X,Y):
         Z = []
         for k in range(X.size(1)):
             for j in range(Y.size(2)):
-                s = 0
-                for i in range(Y.size(1)):
-                    s = s + (X[k,i] * Y[i,j])
-                Z.append(s)
+                Z.append(sum([X[k,i] * Y[i,j] for i in range(Y.size(1))]))
         return matrix(Z, cstride=1, rstride=Y.size(2))
     else:
         raise ValueError('shapes not aligned')

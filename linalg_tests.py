@@ -38,15 +38,15 @@ def s():
     x11 = linalg.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
     try:
         result['scaler matrix multiplication'] = matrix_compare(2*x10, linalg.matrix([[0, 2, 4, 6],[8, 10, 12, 14],[16, 18, 20, 22],[24, 26, 28, 30]]))
-    except:
+    except NameError:
         result['scaler matrix multiplication'] = False
     try:
         result['scaler + matrix'] = matrix_compare(2.1+x10, linalg.matrix([[2.1 , 3.1 , 4.1 , 5.1 ],[6.1 , 7.1 , 8.1 , 9.1 ],[10.1, 11.1, 12.1, 13.1],[14.1, 15.1, 16.1, 17.1]]))
-    except:
+    except TypeError:
         result['scaler + matrix'] = False
     try:
         result['scaler - matrix'] = matrix_compare(1.4-X10, linalg.matrix([[1.4, 0.3999999999999999, -0.6000000000000001 , -1.6],[-2.6, -3.6, -4.6, -5.6],[-6.6, -7.6, -8.6, -9.6],[-10.6, -11.6, -12.6, -13.6]]))
-    except:
+    except NameError:
         result['scaler - matrix'] = False
     result['matrix + scaler'] = matrix_compare(x10+2.1, linalg.matrix([[2.1 , 3.1 , 4.1 , 5.1 ],[6.1 , 7.1 , 8.1 , 9.1 ],[10.1, 11.1, 12.1, 13.1],[14.1, 15.1, 16.1, 17.1]]))
     result['matrix - scaler'] = matrix_compare(x10-1.4, linalg.matrix([[-1.4, -0.3999999999999999, 0.6000000000000001 , 1.6],[2.6, 3.6, 4.6, 5.6],[6.6, 7.6, 8.6, 9.6],[10.6, 11.6, 12.6, 13.6]]))
@@ -55,7 +55,7 @@ def s():
     result['row dot matrix 1x3 . 3x3'] = matrix_compare(linalg.dot(y_row,x1), linalg.matrix([[ 0.71, -0.71,  1.7 ]]))
     try:
         result['matrix dot col 3x3 . 3x1'] = matrix_compare(linalg.dot(x1,y_col), linalg.matrix([1.41, 1.21,  1.0], cstride=1, rstride=1))
-    except:
+    except ValueError:
         result['matrix dot col 3x3 . 3x1'] = False
     result['psuedo inverse'] = matrix_compare(linalg.pinv(x1), linalg.matrix([[0.7042253521126759   , 0.704225352112676    , -0.8450704225352109  ],
                                                                               [-0.704225352112676   , 0.704225352112676    , 0.1408450704225352   ],
@@ -73,8 +73,13 @@ def products():
     result['cross product (x,y)'] = matrix_compare(linalg.cross(x,y), linalg.matrix([[-10.0 , -13.0 , -2.0]]))
     result['cross product (y,x)'] = matrix_compare(linalg.cross(y,x), linalg.matrix([[10.0 , 13.0 , 2.0]]))
     result['cross product 2 (x,y)'] = matrix_compare(linalg.cross(x1,y1), linalg.matrix([[-2.0]]))
+    x = linalg.matrix([[ 3., -2., -2.],[-1.,  0.,  5.]])
+    y = linalg.matrix([[-1.,  0.,  5.]])
+    try:
+        result['cross product shape mismatch (x,y)'] = matrix_compare(linalg.cross(x,y), linalg.matrix([[-10.0 , -13.0 , -2.0]]))
+    except ValueError:
+        result['cross product shape mismatch (x,y)'] = True
     return result
-
 
 def det_inv_test():
     # det_inv test
@@ -94,16 +99,14 @@ def det_inv_test():
     inv_res = matrix_compare(inv, f)
     return {'determinant' : det_res, 'inverse' : inv_res}
 
-total_tests = 0
-total_pass = 0
 final_results = s()
 results = det_inv_test()
 final_results.update(results)
 results = products()
 final_results.update(results)
+tests_total = len(final_results)
+tests_passed = sum(final_results.values())
 for k,v in final_results.items():
-    total_tests = total_tests + 1
-    if v:
-        total_pass = total_pass + 1
     print('Test : {0:30s} ===> {1}'.format(k, v))
-print('Total : {0:3d} : PASSED {1:3d} FAILED {2:3d}'.format(total_tests, total_pass, total_tests-total_pass))
+print('----------------------------------------------')
+print('Total : {0:3d} : Passed {1:3d} Failed {2:3d}'.format(tests_total, tests_passed, tests_total-tests_passed))

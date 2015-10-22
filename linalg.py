@@ -399,14 +399,17 @@ def dot(X,Y):
 def cross(X, Y):
     ''' Cross product '''
     if (X.n in (2, 3)) and (Y.n in (2, 3)):
-        Z = []
-        for k in range(X.m):
-            z = X[k,0]*Y[k,1] - X[k,1]*Y[k,0]
-            if (X.n == 3) and (Y.n == 3):
-                Z.append([X[k,1]*Y[k,2] - X[k,2]*Y[k,1], X[k,2]*Y[k,0] - X[k,0]*Y[k,2], z])
-            else:
-                Z.append([z])
-        return matrix(Z)
+        if X.m == Y.m:
+            Z = []
+            for k in range(min(X.m, Y.m)):
+                z = X[k,0]*Y[k,1] - X[k,1]*Y[k,0]
+                if (X.n == 3) and (Y.n == 3):
+                    Z.append([X[k,1]*Y[k,2] - X[k,2]*Y[k,1], X[k,2]*Y[k,0] - X[k,0]*Y[k,2], z])
+                else:
+                    Z.append([z])
+            return matrix(Z)
+        else:
+            raise ValueError('shape mismatch')
     else:
         raise ValueError('incompatible dimensions for cross product (must be 2 or 3)')
 

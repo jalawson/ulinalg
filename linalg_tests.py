@@ -81,6 +81,15 @@ def products():
         result['cross product shape mismatch (x,y)'] = True
     return result
 
+def iteration():
+
+    results = {}
+
+    x10 = linalg.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
+    Z = [i for i in x10]
+    print(Z)
+    return results
+
 def det_inv_test():
     # det_inv test
     # det = 24.0
@@ -104,6 +113,7 @@ results = det_inv_test()
 final_results.update(results)
 results = products()
 final_results.update(results)
+results = iteration()
 tests_total = len(final_results)
 tests_passed = sum(final_results.values())
 for k,v in final_results.items():

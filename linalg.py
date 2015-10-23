@@ -43,14 +43,25 @@ class matrix(object):
         return not self.__eq__(self, other)
 
     def __iter__(self):
+        print('__iter__', type(self), self)
         self.cur = 0
+        if self.m == 1:
+            self.cnt_lim = self.n
+        else:
+            self.cnt_lim = self.m
         return self
 
     def __next__(self):
-        if self.cur >= self.m:
+        # numpy if a matrix return a list of each row vector
+        # else a list of the element s in the vector
+        # if m > 1 then do the list of vectors
+        # else list of elements
+        print('__next__', self.cur, self)
+        if self.cur >= self.cnt_lim:
             raise StopIteration
-        self.cur += 1
-        return matrix([self.data[self.cur-1]])
+        self.cur = self.cur + 1
+        #return matrix([self.data[self.cur-1]])
+        return self.data[self.cur-1]
 
     def slice_to_offset(self, r0, r1, c0, c1):
         # check values and limit them
@@ -304,7 +315,7 @@ class matrix(object):
         return matrix(self.data, cstride=self.rstride, rstride=self.cstride)
 
 
-# matrix version operations
+# matrix operations
 
 def zeros(m, n):
     return matrix([[0 for i in range(n)] for j in range(m)])
@@ -428,11 +439,3 @@ def cross(X, Y):
             raise ValueError('shape mismatch')
     else:
         raise ValueError('incompatible dimensions for cross product (must be 2 or 3)')
-
-
-def main():
-
-    pass
-
-if __name__ == "__main__":
-    main()

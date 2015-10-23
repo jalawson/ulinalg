@@ -72,7 +72,7 @@ class matrix(object):
             nd.extend(self.data[d0:d1])
         return matrix(nd, cstride=1, rstride=(c1-c0))
 
-    def slice_indices(self, index):
+    def slice_indices(self, index, axis=0):
         # this section is to get around the missing slice.indices() method
         # the following should work when uPy implements the slice.indices()
         # method
@@ -81,7 +81,7 @@ class matrix(object):
         st = str(index).split(',')
         if st[0][6:] == 'None':
             s0 = 0
-            p0 = self.m
+            p0 = self.shape[axis]
         else:
             s0 = int(st[0][6:])
             p0 = int(st[1][1:])
@@ -96,13 +96,13 @@ class matrix(object):
             if isinstance(index[0], int):
                 s0 = index[0]
                 p0 = s0+1
-            else:  # slice
-                s0, p0 = self.slice_indices(index[0])
+            else:  # row slice
+                s0, p0 = self.slice_indices(index[0], 0)
             if isinstance(index[1], int):
                 s1 = index[1]
                 p1 = s1+1
-            else:  # slice
-                s1, p1 = self.slice_indices(index[1])
+            else:  # column slice
+                s1, p1 = self.slice_indices(index[1], 1)
         elif type(index) == list:
             # list of indices etc
             raise NotImplementedError('Fancy indexing')
@@ -119,9 +119,6 @@ class matrix(object):
             return z.data[0]
         else:
             return z
-
-    def make_a_slice(self, i):
-        return i
 
     def __setitem__(self, index, val):
         if type(index) != tuple:

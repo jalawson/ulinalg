@@ -43,12 +43,12 @@ class matrix(object):
         return not self.__eq__(self, other)
 
     def __iter__(self):
-        print('__iter__', type(self), self)
         self.cur = 0
-        if self.m == 1:
-            self.cnt_lim = self.n
-        else:
+        # determine proper axis
+        if self.n == 1:
             self.cnt_lim = self.m
+        else:
+            self.cnt_lim = self.n
         return self
 
     def __next__(self):
@@ -56,12 +56,13 @@ class matrix(object):
         # else a list of the element s in the vector
         # if m > 1 then do the list of vectors
         # else list of elements
-        print('__next__', self.cur, self)
         if self.cur >= self.cnt_lim:
             raise StopIteration
         self.cur = self.cur + 1
-        #return matrix([self.data[self.cur-1]])
-        return self.data[self.cur-1]
+        if self.m == 1:
+            return self.data[self.cur-1]
+        else:
+            return self[self.cur-1]
 
     def slice_to_offset(self, r0, r1, c0, c1):
         # check values and limit them

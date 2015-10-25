@@ -7,15 +7,12 @@ eps = 1.0e-15
 def matrix_compare(X, Y):
     return all([(abs(X[i,j] - Y[i,j]) < eps) for j in range(X.size(2)) for i in range(X.size(1))])
 
-def s():
+def construct():
 
     result = {}
 
     x11 = linalg.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
     x10 = linalg.matrix([[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]])
-    x1 = linalg.matrix([[0.71,-0.71,0.7],[0.71,0.71,0.5],[0,0,1]])
-    y_row = linalg.matrix([[1,0,1]])
-    y_col = linalg.matrix([1, 0, 1], cstride=1, rstride=1)
 
     result['square test 1'] = x10.is_square
     result['square test 2'] = not x11.is_square
@@ -30,6 +27,14 @@ def s():
     # check for shape change copy
     x12 = x11.reshape((3,4))
     result['shape copy'] = matrix_compare(x12, linalg.matrix([[0,1,2,4],[5,6,8,9],[10,12,13,14]])) and not (x11 == x12)
+
+    return result
+
+def scaler():
+
+    result = {}
+
+    x10 = linalg.matrix([[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]])
     x11 = linalg.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
     try:
         result['scaler matrix multiplication'] = matrix_compare(2*x10, linalg.matrix([[0, 2, 4, 6],[8, 10, 12, 14],[16, 18, 20, 22],[24, 26, 28, 30]]))
@@ -45,6 +50,34 @@ def s():
         result['scaler - matrix'] = False
     result['matrix + scaler'] = matrix_compare(x10+2.1, linalg.matrix([[2.1 , 3.1 , 4.1 , 5.1 ],[6.1 , 7.1 , 8.1 , 9.1 ],[10.1, 11.1, 12.1, 13.1],[14.1, 15.1, 16.1, 17.1]]))
     result['matrix - scaler'] = matrix_compare(x10-1.4, linalg.matrix([[-1.4, -0.3999999999999999, 0.6000000000000001 , 1.6],[2.6, 3.6, 4.6, 5.6],[6.6, 7.6, 8.6, 9.6],[10.6, 11.6, 12.6, 13.6]]))
+    return result
+
+def slicing():
+
+    result = {}
+
+    x10 = linalg.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
+    result['extract single element'] = x10[1,2] == 6
+    result['extract a row'] = matrix_compare(x10[1,:], linalg.matrix([[4, 5, 6]]))
+    result['extract a col'] = matrix_compare(x10[:,1], linalg.matrix([1, 5, 9, 13], cstride=1, rstride=1))
+    result['extract rows'] = matrix_compare(x10[1:4,:], linalg.matrix([[4, 5, 6],[8, 9, 10],[12, 13, 14]]))
+    result['extract columns'] = matrix_compare(x10[:,1:3], linalg.matrix([[1, 2],[5, 6],[9, 10],[13, 14]]))
+    result['extract sub'] = matrix_compare(x10[1:3,1:3], linalg.matrix([[5, 6],[9, 10]]))
+    result['extract row from transpose'] = matrix_compare(x10.T[0], linalg.matrix([[0, 4, 8, 12]]))
+    result['extract col from transpose'] = matrix_compare(x10.T[:,1], linalg.matrix([4, 5, 6], cstride=1, rstride=1))
+    result['extract sub from transpose'] = matrix_compare(x10.T[1:3,1:3], linalg.matrix([[5, 9],[6, 10]]))
+
+    return result
+
+def products():
+
+    result = {}
+
+    x11 = linalg.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
+    x10 = linalg.matrix([[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]])
+    x1 = linalg.matrix([[0.71,-0.71,0.7],[0.71,0.71,0.5],[0,0,1]])
+    y_row = linalg.matrix([[1,0,1]])
+    y_col = linalg.matrix([1, 0, 1], cstride=1, rstride=1)
     result['matrix * scaler'] = matrix_compare(x10*2, linalg.matrix([[0, 2, 4, 6],[8, 10, 12, 14],[16, 18, 20, 22],[24, 26, 28, 30]]))
     result['matrix * matrix elementwise'] = matrix_compare(x11*x11, linalg.matrix([[0, 1, 4],[16, 25, 36],[64, 81, 100],[144, 169, 196]]))
     result['row dot matrix 1x3 . 3x3'] = matrix_compare(linalg.dot(y_row,x1), linalg.matrix([[ 0.71, -0.71,  1.7 ]]))
@@ -55,29 +88,6 @@ def s():
     result['psuedo inverse'] = matrix_compare(linalg.pinv(x1), linalg.matrix([[0.7042253521126759   , 0.704225352112676    , -0.8450704225352109  ],
                                                                               [-0.704225352112676   , 0.704225352112676    , 0.1408450704225352   ],
                                                                               [1.110223024625157e-16, 5.551115123125783e-17, 0.9999999999999998   ]]))
-    return result
-
-def slicing():
-
-    result = {}
-
-    x10 = linalg.matrix([[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]])
-    result['extract single element'] = x10[1,2] == 6
-    result['extract a row'] = matrix_compare(x10[1,:], linalg.matrix([[4, 5, 6, 7]]))
-    result['extract a col'] = matrix_compare(x10[:,1], linalg.matrix([1, 5, 9, 13], cstride=1, rstride=1))
-    result['extract rows'] = matrix_compare(x10[1:4,:], linalg.matrix([[4, 5, 6, 7],[8, 9, 10, 11],[12, 13, 14, 15]]))
-    result['extract columns'] = matrix_compare(x10[:,1:4], linalg.matrix([[1, 2, 3],[5, 6, 7],[9, 10, 11],[13, 14, 15]]))
-    result['extract sub'] = matrix_compare(x10[1:3,1:3], linalg.matrix([[5, 6],[9, 10]]))
-    result['extract row from transpose'] = matrix_compare(x10.T[0], linalg.matrix([[0, 4, 8, 12]]))
-    result['extract col from transpose'] = matrix_compare(x10.T[:,1], linalg.matrix([4, 5, 6, 7], cstride=1, rstride=1))
-    result['extract sub from transpose'] = matrix_compare(x10.T[1:3,1:3], linalg.matrix([[5, 9],[6, 10]]))
-
-    return result
-
-def products():
-
-    result = {}
-
     x = linalg.matrix([[ 3., -2., -2.]])
     y = linalg.matrix([[-1.,  0.,  5.]])
     x1 = linalg.matrix([[ 3., -2.]])
@@ -126,18 +136,21 @@ def det_inv_test():
     inv_res = matrix_compare(inv, f)
     return {'determinant' : det_res, 'inverse' : inv_res}
 
-final_results = s()
-results = det_inv_test()
-final_results.update(results)
-results = products()
-final_results.update(results)
-results = slicing()
-final_results.update(results)
-results = iteration()
-final_results.update(results)
+final_results = {}
+for t in [construct,
+          scaler,
+          det_inv_test,
+          products,
+          slicing,
+          iteration
+         ]:
+    results = t()
+    print('---', t.__name__, '-'*(52-len(t.__name__)))
+    for k,v in results.items():
+        print('Test : {0:36s} ===> {1}'.format(k, ['    Fail','Pass'][v]))
+    final_results.update(results)
+
 tests_total = len(final_results)
 tests_passed = sum(final_results.values())
-for k,v in final_results.items():
-    print('Test : {0:36s} ===> {1}'.format(k, v))
-print('----------------------------------------------')
+print('-'*57)
 print('Total : {0:3d} : Passed {1:3d} Failed {2:3d}'.format(tests_total, tests_passed, tests_total-tests_passed))

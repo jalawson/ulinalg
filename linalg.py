@@ -122,7 +122,7 @@ class matrix(object):
             # need to make it a slice without the slice function
             raise NotImplementedError('Need to use the slice [1,:] format.')
         # int and int => single entry gets changed (if val in [int,float])
-        # int and slice => row and columns take on val if val fits integrly
+        # int and slice => row and columns take on val if val fits integrally
         # slice and int
         # slice and slice
         # get the slice_to_offsets and run through the submatrix assigning

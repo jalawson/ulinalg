@@ -21,11 +21,6 @@ def s():
     result['square test 2'] = not x11.is_square
     result['transpose test square'] = matrix_compare(x10.transpose(), linalg.matrix([[0, 4, 8, 12],[1, 5, 9, 13],[2, 6, 10, 14],[3, 7, 11, 15]]))
     result['transpose property'] = matrix_compare(x10.T, linalg.matrix([[0, 4, 8, 12],[1, 5, 9, 13],[2, 6, 10, 14],[3, 7, 11, 15]]))
-    result['extract single element'] = x10[1,2] == 6
-    result['extract a row'] = matrix_compare(x10[1,:], linalg.matrix([[4, 5, 6, 7]]))
-    result['extract a col'] = matrix_compare(x10[:,1], linalg.matrix([1, 5, 9, 13], cstride=1, rstride=1))
-    result['extract rows'] = matrix_compare(x10[1:4,:], linalg.matrix([[4, 5, 6, 7],[8, 9, 10, 11],[12, 13, 14, 15]]))
-    result['extract columns'] = matrix_compare(x10[:,1:4], linalg.matrix([[1, 2, 3],[5, 6, 7],[9, 10, 11],[13, 14, 15]]))
     # check for shape change view
     x12 = x11
     result['shape'] = x11.shape == (4, 3)
@@ -62,6 +57,23 @@ def s():
                                                                               [1.110223024625157e-16, 5.551115123125783e-17, 0.9999999999999998   ]]))
     return result
 
+def slicing():
+
+    result = {}
+
+    x10 = linalg.matrix([[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]])
+    result['extract single element'] = x10[1,2] == 6
+    result['extract a row'] = matrix_compare(x10[1,:], linalg.matrix([[4, 5, 6, 7]]))
+    result['extract a col'] = matrix_compare(x10[:,1], linalg.matrix([1, 5, 9, 13], cstride=1, rstride=1))
+    result['extract rows'] = matrix_compare(x10[1:4,:], linalg.matrix([[4, 5, 6, 7],[8, 9, 10, 11],[12, 13, 14, 15]]))
+    result['extract columns'] = matrix_compare(x10[:,1:4], linalg.matrix([[1, 2, 3],[5, 6, 7],[9, 10, 11],[13, 14, 15]]))
+    result['extract sub'] = matrix_compare(x10[1:3,1:3], linalg.matrix([[5, 6],[9, 10]]))
+    result['extract row from transpose'] = matrix_compare(x10.T[0], linalg.matrix([[0, 4, 8, 12]]))
+    result['extract col from transpose'] = matrix_compare(x10.T[:,1], linalg.matrix([4, 5, 6, 7], cstride=1, rstride=1))
+    result['extract sub from transpose'] = matrix_compare(x10.T[1:3,1:3], linalg.matrix([[5, 9],[6, 10]]))
+
+    return result
+
 def products():
 
     result = {}
@@ -83,12 +95,18 @@ def products():
 
 def iteration():
 
-    results = {}
+    result = {}
 
     x10 = linalg.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
     Z = [i for i in x10]
-    print(Z)
-    return results
+    result['iteration over matrix'] = Z == [linalg.matrix([[0, 1, 2]]), linalg.matrix([[4, 5, 6]]), linalg.matrix([[8 , 9 , 10]])]
+    Z = [i for i in x10[1,:]]
+    result['iteration over row slice'] = Z == [4, 5, 6]
+    Z = [i for i in x10[:,1]]
+    result['iteration over col slice'] = Z == [1, 5, 9, 13]
+    Z = [i for i in x10[1:3,1:2]]
+    result['iteration over submatrix'] = Z == [5, 9]
+    return result
 
 def det_inv_test():
     # det_inv test
@@ -113,10 +131,13 @@ results = det_inv_test()
 final_results.update(results)
 results = products()
 final_results.update(results)
+results = slicing()
+final_results.update(results)
 results = iteration()
+final_results.update(results)
 tests_total = len(final_results)
 tests_passed = sum(final_results.values())
 for k,v in final_results.items():
-    print('Test : {0:30s} ===> {1}'.format(k, v))
+    print('Test : {0:36s} ===> {1}'.format(k, v))
 print('----------------------------------------------')
 print('Total : {0:3d} : Passed {1:3d} Failed {2:3d}'.format(tests_total, tests_passed, tests_total-tests_passed))

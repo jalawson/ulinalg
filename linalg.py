@@ -66,11 +66,7 @@ class matrix(object):
 
     def slice_to_offset(self, r0, r1, c0, c1):
         # check values and limit them
-        nd = []
-        for i in range(r0, r1):
-            d0 = i*self.rstride + c0*self.cstride
-            d1 = d0 + (c1 - c0)
-            nd.extend(self.data[d0:d1])
+        nd = [self.data[i*self.rstride + j*self.cstride] for i in range(r0, r1) for j in range(c0, c1)]
         return matrix(nd, cstride=1, rstride=(c1-c0))
 
     def slice_indices(self, index, axis=0):
@@ -108,7 +104,7 @@ class matrix(object):
             # list of indices etc
             raise NotImplementedError('Fancy indexing')
         else:
-            # type is int? This will return a row
+            # type is int? This will default to returning a row
             s0 = index
             p0 = s0 + 1
             s1 = 0
@@ -124,7 +120,6 @@ class matrix(object):
     def __setitem__(self, index, val):
         if type(index) != tuple:
             # need to make it a slice without the slice function
-            index = self.make_a_slice(self[index, :])
             raise NotImplementedError('Need to use the slice [1,:] format.')
         # int and int => single entry gets changed (if val in [int,float])
         # int and slice => row and columns take on val if val fits integrly

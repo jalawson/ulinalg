@@ -335,66 +335,68 @@ def det_inv(x):
         All the operation carried out on the original identity matrix
         makes it the inverse of X
     '''
-    assert x.is_square, 'must be a square matrix'
-    # divide each row element by [0] to give a one in the first position
-    # (may have to find a row to switch with if first element is 0)
-    x = x.copy()
-    inverse = eye(len(x))
-    sign = 1
-    factors = []
-    p = 0
-    while p < len(x):
-        d = x[p, p]
-        if abs(d) < 1e-30:
-            # pivot == 0 need to swap a row
-            # need to check if swap row also has a zero at the same position
-            np = 1
-            while (p+np) < len(x) and x[p+np, p] < 1e-30:
-                np += 1
-            if (p+np) == len(x):
-                # singular
-                return [0, []]
-            # swap rows
-            z = x[p+np]
-            x[p+np,:] = x[p]
-            x[p,:] = z
-            # do identity
-            z = inverse[p+np]
-            inverse[p+np,:] = inverse[p]
-            inverse[p,:] = z
-            # change sign of det
-            sign = -sign
-            continue
-        factors.append(d)
-        # change target row
-        for n in range(p,len(x)):
-            x[p,n] = x[p,n] / d
-        # need to do the entire row for the inverse
-        for n in range(len(x)):
-            inverse[p,n] = inverse[p,n] / d
-        # eliminate position in the following rows
-        for i in range(p+1,len(x)):
-            # multiplier is that column entry
-            t = x[i,p]
-            for j in range(p,len(x)):
-                x[i,j] = x[i,j] - (t * x[p,j])
-            for j in range(len(x)):
-                inverse[i,j] = inverse[i,j] - (t * inverse[p,j])
-        p += 1
-    s = sign
-    for i in factors:
-        s = s * i  # determinant
-    # travel through the rows eliminating upper diagonal non-zero values
-    for i in range(len(x)-1):
-        # final row should already be all zeros except for the final position
-        for p in range(i+1,len(x)):
-            # multiplier is that column entry
-            t = x[i,p]
-            for j in range(i+1,len(x)):
-                x[i,j] = x[i,j] - (t * x[p,j])
-            for j in range(len(x)):
-                inverse[i,j] = inverse[i,j] - (t * inverse[p,j])
-    return (s, inverse)
+    if not x.is_square:
+        raise ValueError('Matrix must be square')
+    else:
+        # divide each row element by [0] to give a one in the first position
+        # (may have to find a row to switch with if first element is 0)
+        x = x.copy()
+        inverse = eye(len(x))
+        sign = 1
+        factors = []
+        p = 0
+        while p < len(x):
+            d = x[p, p]
+            if abs(d) < 1e-30:
+                # pivot == 0 need to swap a row
+                # need to check if swap row also has a zero at the same position
+                np = 1
+                while (p+np) < len(x) and x[p+np, p] < 1e-30:
+                    np += 1
+                if (p+np) == len(x):
+                    # singular
+                    return [0, []]
+                # swap rows
+                z = x[p+np]
+                x[p+np,:] = x[p]
+                x[p,:] = z
+                # do identity
+                z = inverse[p+np]
+                inverse[p+np,:] = inverse[p]
+                inverse[p,:] = z
+                # change sign of det
+                sign = -sign
+                continue
+            factors.append(d)
+            # change target row
+            for n in range(p,len(x)):
+                x[p,n] = x[p,n] / d
+            # need to do the entire row for the inverse
+            for n in range(len(x)):
+                inverse[p,n] = inverse[p,n] / d
+            # eliminate position in the following rows
+            for i in range(p+1,len(x)):
+                # multiplier is that column entry
+                t = x[i,p]
+                for j in range(p,len(x)):
+                    x[i,j] = x[i,j] - (t * x[p,j])
+                for j in range(len(x)):
+                    inverse[i,j] = inverse[i,j] - (t * inverse[p,j])
+            p += 1
+        s = sign
+        for i in factors:
+            s = s * i  # determinant
+        # travel through the rows eliminating upper diagonal non-zero values
+        for i in range(len(x)-1):
+            # final row should already be all zeros except for the final position
+            for p in range(i+1,len(x)):
+                # multiplier is that column entry
+                t = x[i,p]
+                for j in range(i+1,len(x)):
+                    x[i,j] = x[i,j] - (t * x[p,j])
+                for j in range(len(x)):
+                    inverse[i,j] = inverse[i,j] - (t * inverse[p,j])
+        return (s, inverse)
 
 
 def pinv(X):

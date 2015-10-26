@@ -127,32 +127,27 @@ class matrix(object):
         # slice and slice
         # get the slice_to_offsets and run through the submatrix assigning
         # values from val using mod on the rows and columns
-        if (type(index[0]) == int) and (type(index[1]) == int):
-            if type(val) in [int, float]:
-                self.data[index[0]*self.rstride + index[1]*self.cstride] = val
-            else:
-                raise ValueError('setting an array element with a sequence.')
+        if isinstance(index[0], int):
+            s0 = index[0]
+            p0 = s0+1
+        else:  # slice
+            s0, p0 = self.slice_indices(index[0], 0)
+        if isinstance(index[1], int):
+            s1 = index[1]
+            p1 = s1+1
+        else:  # slice
+            s1, p1 = self.slice_indices(index[1], 1)
+        if type(val) == matrix:
+             val = val.data
+        elif type(val) != list:
+             val = [val]
+        if not all([type(i) in [int, float] for i in val]):
+            raise ValueError('Non numeric entry')
         else:
-            if isinstance(index[0], int):
-                s0 = index[0]
-                p0 = s0+1
-            else:  # slice
-                s0, p0 = self.slice_indices(index[0])
-            if isinstance(index[1], int):
-                s1 = index[1]
-                p1 = s1+1
-            else:  # slice
-                s1, p1 = self.slice_indices(index[1])
+            k = 0
             for i in range(s0, p0):
-                d0 = i*self.rstride + s1*self.cstride
-                d1 = d0 + (p1 - s1)
-                k = 0
-                if type(val) == matrix:
-                    val = val.data
-                elif type(val) != list:
-                    val = [val]
-                for j in range(d0, d1):
-                    self.data[j] = val[k]
+                for j in range(s1, p1):
+                    self.data[i*self.rstride + j*self.cstride] = val[k]
                     k = (k + 1) % len(val)
 
     # there is also __delitem__

@@ -52,6 +52,45 @@ def scaler():
     result['matrix - scaler'] = matrix_compare(x10-1.4, linalg.matrix([[-1.4, -0.3999999999999999, 0.6000000000000001 , 1.6],[2.6, 3.6, 4.6, 5.6],[6.6, 7.6, 8.6, 9.6],[10.6, 11.6, 12.6, 13.6]]))
     return result
 
+def assignment():
+
+    result = {}
+    x11 = linalg.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
+    x11[1,1] = 1.2
+    result['matrix element <- value'] = matrix_compare(x11, linalg.matrix([[0,1,2],[4,1.2,6],[8,9,10],[12,13,14]]))
+    x11 = linalg.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
+    x11[1,1] = [1.2, 2.3]
+    result['matrix element <- list'] = matrix_compare(x11, linalg.matrix([[0,1,2],[4,1.2,6],[8,9,10],[12,13,14]]))
+    x11 = linalg.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
+    x11[1,:] = 1.2
+    result['matrix row <- value'] = matrix_compare(x11, linalg.matrix([[0,1,2],[1.2,1.2,1.2],[8,9,10],[12,13,14]]))
+    x11 = linalg.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
+    x11[1,:] = [1.2, 2.3, 3.5]
+    result['matrix row <- list'] = matrix_compare(x11, linalg.matrix([[0,1,2],[1.2,2.3,3.5],[8,9,10],[12,13,14]]))
+    x11 = linalg.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
+    x11[:,1] = 1.2
+    result['matrix col <- value'] = matrix_compare(x11, linalg.matrix([[0,1.2,2],[4,1.2,6],[8,1.2,10],[12,1.2,14]]))
+    x11 = linalg.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
+    x11[:,1] = [1.2, 2.3, 3.5, 4.6]
+    result['matrix col <- list'] = matrix_compare(x11, linalg.matrix([[0,1.2,2],[4,2.3,6],[8,3.5,10],[12,4.6,14]]))
+    x10 = linalg.matrix([[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]])
+    x10[1:3,1:3] = 1.2
+    result['submatrix  <- value'] = matrix_compare(x10, linalg.matrix([[0,1,2,3],[4,1.2,1.2,7],[8,1.2,1.2,11],[12,13,14,15]]))
+    x10 = linalg.matrix([[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]])
+    x10[1:3,1:3] = [1.2,2.4,3.5,4.6]
+    result['submatrix  <- list'] = matrix_compare(x10, linalg.matrix([[0,1,2,3],[4,1.2,2.4,7],[8,3.5,4.6,11],[12,13,14,15]]))
+    x10 = linalg.matrix([[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]])
+    x10[1:3,1:3] = linalg.matrix([[1.2,2.4],[3.5,4.6]])
+    result['submatrix  <- matrix'] = matrix_compare(x10, linalg.matrix([[0,1,2,3],[4,1.2,2.4,7],[8,3.5,4.6,11],[12,13,14,15]]))
+
+    x11 = linalg.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
+    try:
+        x11[1] = [18,19]
+        result['matrix non-splice <- matrix/vector'] = not matrix_compare(x11, linalg.matrix([[0,1,2],[18,19,6],[8,9,10],[12,13,14]]))
+    except NotImplementedError:
+        result['matrix non-splice <- matrix/vector'] = True
+    return result
+
 def slicing():
 
     result = {}
@@ -141,6 +180,7 @@ for t in [construct,
           scaler,
           det_inv_test,
           products,
+          assignment,
           slicing,
           iteration
          ]:
@@ -153,4 +193,4 @@ for t in [construct,
 tests_total = len(final_results)
 tests_passed = sum(final_results.values())
 print('-'*57)
-print('Total : {0:3d} : Passed {1:3d} Failed {2:3d}'.format(tests_total, tests_passed, tests_total-tests_passed))
+print('Total ==> {0:3d} Passed ==> {1:3d} Failed ==> {2:3d}'.format(tests_total, tests_passed, tests_total-tests_passed))

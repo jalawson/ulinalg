@@ -144,7 +144,7 @@ class matrix(object):
              val = val.data
         elif type(val) != list:
              val = [val]
-        if not all([type(i) in [int, float] for i in val]):
+        if not all([type(i) in stypes for i in val]):
             raise ValueError('Non numeric entry')
         else:
             k = 0
@@ -185,8 +185,7 @@ class matrix(object):
 
     def __add__(self, a):
         # matrix + scaler elementwise scaler adition
-        #if type(a) in stypes:
-        if type(a) in [int, float]:
+        if type(a) in stypes:
             ndata = [self.data[i]+a for i in range(len(self.data))]
             return matrix(ndata, cstride=self.cstride, rstride=self.rstride)
         elif (type(a) == matrix):
@@ -200,7 +199,7 @@ class matrix(object):
 
     def __sub__(self, a):
         # matrix - scaler elementwise scaler subtraction
-        if type(a) in [int, float]:
+        if type(a) in stypes:
             ndata = [self.data[i]-a for i in range(len(self.data))]
             return matrix(ndata, cstride=self.cstride, rstride=self.rstride)
         elif (type(a) == matrix):
@@ -211,14 +210,14 @@ class matrix(object):
 
     def __rsub__(self, a):
         # scaler - matrix elementwise scaler subtraction
-        if type(a) in [int, float]:
+        if type(a) in stypes:
             ndata = [a - self.data[i] for i in range(len(self.data))]
             return matrix(ndata, cstride=self.cstride, rstride=self.rstride)
         raise NotImplementedError()
 
     def __mul__(self, a):
         # matrix * scaler element by scaler multiplication
-        if type(a) in [int, float]:
+        if type(a) in stypes:
             ndata = [self.data[i]*a for i in range(len(self.data))]
             return matrix(ndata, cstride=self.cstride, rstride=self.rstride)
         elif (type(a) == matrix):
@@ -233,13 +232,13 @@ class matrix(object):
             so __rmul__ never gets called.
         '''
         # scaler * matrix element by element multiplication
-        if type(a) in [int, float]:
+        if type(a) in stypes:
             ndata = [self.data[i]*a for i in range(len(self.data))]
             return matrix(ndata, cstride=self.cstride, rstride=self.rstride)
 
     def __truediv__(self, a):
         # matrix / scaler element by scaler multiplication
-        if type(a) in [int, float]:
+        if type(a) in stypes:
             try:
                 ndata = [self.data[i]/a for i in range(len(self.data))]
                 return matrix(ndata, cstride=self.cstride, rstride=self.rstride)
@@ -250,7 +249,7 @@ class matrix(object):
 
     def __floordiv__(self, a):
         # matrix / scaler element by scaler multiplication
-        if type(a) in [int, float]:
+        if type(a) in stypes:
             try:
                 ndata = [self.data[i]//a for i in range(len(self.data))]
                 return matrix(ndata, cstride=self.cstride, rstride=self.rstride)

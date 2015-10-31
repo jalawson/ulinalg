@@ -1,3 +1,6 @@
+stypes = [int]
+flt_eps = 1
+
 class matrix(object):
 
     def __init__(self, data, cstride=0, rstride=0):
@@ -182,6 +185,7 @@ class matrix(object):
 
     def __add__(self, a):
         # matrix + scaler elementwise scaler adition
+        #if type(a) in stypes:
         if type(a) in [int, float]:
             ndata = [self.data[i]+a for i in range(len(self.data))]
             return matrix(ndata, cstride=self.cstride, rstride=self.rstride)
@@ -342,11 +346,11 @@ def det_inv(x):
         p = 0
         while p < len(x):
             d = x[p, p]
-            if abs(d) < 1e-30:
+            if abs(d) < flt_eps:
                 # pivot == 0 need to swap a row
                 # need to check if swap row also has a zero at the same position
                 np = 1
-                while (p+np) < len(x) and x[p+np, p] < 1e-30:
+                while (p+np) < len(x) and x[p+np, p] < flt_eps:
                     np += 1
                 if (p+np) == len(x):
                     # singular
@@ -429,3 +433,27 @@ def cross(X, Y):
             raise ValueError('shape mismatch')
     else:
         raise ValueError('incompatible dimensions for cross product (must be 2 or 3)')
+
+def mf():
+  ''' Determine floating point resolution '''
+  i = 0
+  x = '1.0'
+  y = x
+  z = float(x)
+  while y == str(z):
+      x = str(x) + '1'
+      z = float(x)
+      y = str(x)
+      i = i + 1
+  return i
+
+# Determine supported types
+try:
+    stypes.append(float)
+    flt_eps = 1./(10**mf())
+except:
+    pass
+try:
+    stypes.append(complex)
+except:
+    pass

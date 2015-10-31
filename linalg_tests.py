@@ -2,7 +2,8 @@
 
 import linalg
 
-eps = 1.0e-15
+# linalg tries to determine the machine epsilon
+eps = linalg.flt_eps
 
 def matrix_compare(X, Y):
     return all([(abs(X[i,j] - Y[i,j]) < eps) for j in range(X.size(2)) for i in range(X.size(1))])

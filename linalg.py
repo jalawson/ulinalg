@@ -48,17 +48,18 @@ class matrix(object):
     def __iter__(self):
         self.cur = 0
         # determine proper axis
-        if self.n == 1:
-            self.cnt_lim = self.m
-        else:
+        if self.m == 1:
             self.cnt_lim = self.n
+        else:
+            self.cnt_lim = self.m
         return self
 
     def __next__(self):
-        # numpy if a matrix return a list of each row vector
-        # else a list of the element s in the vector
-        # if m > 1 then do the list of vectors
-        # else list of elements
+        '''
+        Returns a matrix if m > 1
+        else the next numeric element of the vector.
+        differs from numpy (returns vectors if selected bia slice)
+        '''
         if self.cur >= self.cnt_lim:
             raise StopIteration
         self.cur = self.cur + 1

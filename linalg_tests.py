@@ -149,7 +149,7 @@ def iteration():
 
     x10 = linalg.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
     Z = [i for i in x10]
-    result['iteration over matrix'] = Z == [linalg.matrix([[0, 1, 2]]), linalg.matrix([[4, 5, 6]]), linalg.matrix([[8 , 9 , 10]])]
+    result['iteration over matrix'] = Z == [linalg.matrix([[0, 1, 2]]), linalg.matrix([[4, 5, 6]]), linalg.matrix([[8 , 9 , 10]]), linalg.matrix([[12, 13, 14]])]
     Z = [i for i in x10[1,:]]
     result['iteration over row slice'] = Z == [4, 5, 6]
     Z = [i for i in x10[:,1]]

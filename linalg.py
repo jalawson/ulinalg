@@ -34,6 +34,9 @@ class matrix(object):
             self.data = [data[i][j] for i in range(self.m) for j in range(self.n)]
             self.cstride = 1
             self.rstride = self.n
+        # ensure all elements are of the same type
+        ty = max([stypes.index(type(i)) for i in self.data])
+        self.data = [stypes[ty](i) for i in self.data]
 
     def __len__(self):
         return self.m

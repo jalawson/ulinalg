@@ -37,6 +37,7 @@ class matrix(object):
         # ensure all elements are of the same type
         ty = max([stypes.index(type(i)) for i in self.data])
         self.data = [stypes[ty](i) for i in self.data]
+        self.dtype = stypes[ty]
 
     def __len__(self):
         return self.m

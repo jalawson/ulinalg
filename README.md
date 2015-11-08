@@ -1,6 +1,6 @@
 #microlinalg
 
-This is a small module to provide matrix represention and operations and a few
+This is a small module to provide a matrix class for represention and operations on matrices and a few
  linear algebra matrix operations.
 
 The idea is to be fairly compatible with Numpy arrays and similarly provided operations but not to replace all numpys functionality.
@@ -10,21 +10,13 @@ The idea is to be fairly compatible with Numpy arrays and similarly provided ope
 * __linalg.py__ - matrix class and supporting linear algebra routines.
 * __linalg\_tests.py__ - testing file to check most of the features.
 
-###Currently provided features
+##Classes
 
-The linalg module attempts to determine the supported types and floating point epsilon if float is supported.
-
-The results are held in ```linalg.stypes``` and ```linalg.flt_eps``` respectively.
-
-For example __flt\_eps__, __stypes__ under a few different platforms:
 ```
-#    Linux          = 1E-15, [<class 'int'>, <class 'float'>, <class 'complex'>]
-#    Pyboard        = 1E-6 , [<class 'int'>, <class 'float'>, <class 'complex'>]
-#    WiPy           = 1    , [<class 'int'>]
+matrix
 ```
-Note: ```flt_eps``` is kind of irrelevent when all the work is done on one platform but the linalg_test file uses it to determine matrix equality.
 
-###Matrix representation
+####Matrix instantiation
 
 Elements can be __int__, __float__ or __complex__ depending on the support provided by the particular
  version of MicroPython. All elements will be converted to the most _advanced_ type found (ie. if there is a __float__ in the data, all elements will be converted to __float__).
@@ -60,7 +52,7 @@ mat([[0 ,1 ,2 ],
 >>>
 ```
 ```
->>> X[1,3]        # Returns a single element as __int__, __float__, __complex__
+>>> X[1,3]        # Returns a single element as int, float, complex
 >>> 6
 >>> 
 ```
@@ -98,19 +90,45 @@ mat([[5, 6],
 
 ```
 
+####Matrix assignment
+
+Matrix elements can be assigned to using int, float, complex, list or from a matrix.
+A list will assign elements in order from the source and wrap around if required.
 
 ```
->>> Z=linalg.matrix([sigmoid(i) for i in range(-6,6)], cstride=1, rstride=2)
->>> Z
-mat([[0.002472623156634775, 0.006692850924284857],
-     [0.01798620996209156 , 0.04742587317756679 ],
-     [0.1192029220221176  , 0.2689414213699951  ],
-     [0.5                 , 0.7310585786300049  ],
-     [0.8807970779778823  , 0.9525741268224331  ],
-     [0.9820137900379085  , 0.9933071490757153  ]])
+>>>X = linalg.matrix([[0,1,2],[3,4,5],[6,7,8],[9,10,11]])
+>>>X[1,:] = [20, 21, 22]
+X
+mat([[0 , 1 , 2 ],
+     [20, 21, 22],
+     [6 , 7 , 8 ],
+     [9 , 10, 11]])
+```
+```
+>>>X = linalg.matrix([[0,1,2],[3,4,5],[6,7,8],[9,10,11]])
+>>>X[:,1] = [20, 21, 22]
+X
+mat([[0 , 20, 2 ],
+     [3 , 21, 5 ],
+     [6 , 22, 8 ],
+     [9 , 20, 11]])  # wraps around to the first element of the source list
+```
+```
+>>>X = linalg.matrix([[0,1,2],[3,4,5],[6,7,8],[9,10,11]])
+>>>X[1:3,1:3] = [20, 21, 22, 23]
+X
+mat([[0 , 1 , 2 ],
+     [3 , 20, 21],
+     [6 , 22, 23],
+     [9 , 10, 11]])
 ```
 
-###Notes
+####Iteration
+
+Iterating over a matrix will return a list 1xn matrices (Numpy returns a list of vectors).
+ Iterating over a portion of a matrix will return a list of elements.
+
+##Implementation Notes
 
 ####Matrix/Scaler operations
 Matrices used as the LH argument of a scaler operation will work for elementwise operation.  Using a scaler as the RH argument does not work as reflected operations are not yet supported by MicroPython.
@@ -124,59 +142,99 @@ X+2     # matrix plus element-wise addition works
 (The __int__ class __\_\_add\_\___ method does not raise __NotImplementedError__ and therefore the matrix __\_\_radd\_\___ method is not invoked).
 
 ####Matrix equality
-Currently X==Y will return true if X and Y have the same shape and the elements are equal. Float and complex determine equality within one flt\_eps.
+Currently X==Y will return true if X and Y have the same shape and the elements are equal. Float and complex determine equality within one ```flt_eps```.
+
 Numpy does elementwise equality and provide methods such as all_close(), array_equal() to determine matrix equality.
 
-##Classes
-* matrix
+The linalg module attempts to determine the supported types and floating point epsilon if float is supported.
+
+The results are held in ```linalg.stypes``` and ```linalg.flt_eps``` respectively.
+
+For example __flt\_eps__, __stypes__ under a few different platforms:
+```
+#    Linux          = 1E-15, [<class 'int'>, <class 'float'>, <class 'complex'>]
+#    Pyboard        = 1E-6 , [<class 'int'>, <class 'float'>, <class 'complex'>]
+#    WiPy           = 1    , [<class 'int'>]
+```
+Note: ```flt_eps``` is kind of irrelevent when all the work is done on one platform but the ```linalg_test``` file uses it to determine matrix equality.
 
 ##Properties
-* shape     - returns the shape as a tuple (m, n).
-* shape = (p, q)  - in place shape change (not a copy)
-* is\_square      - returns __True__ if a square matrix
-* T               - convenience property to return a transposed view
+```
+shape
+```
+Returns the shape as a tuple (m, n).
+
+```
+shape = (p, q)
+```
+In place shape change (not a copy)
+
+```
+is_square
+```
+Returns __True__ if a square matrix
+
+```
+T
+```
+Convenience property to return a transposed view
 
 ##Methods
-* copy - returns a copy of the matrix
-* size(axis) - returns 0-size, 1-rows, 2-columns defaults to axis=0 (to match Numpy)
-* reshape(m, n) - returns a copy of the matrix with a the shape (m, n)
-* transpose - returns a transpose view of the matrix
+```
+copy
+```
+Returns a copy of the matrix
+
+```
+size(axis)
+``` 
+Returns 0-size, 1-rows, 2-columns defaults to axis=0 (to match Numpy)
+
+```
+reshape(m, n)
+``` 
+Returns a __copy__ of the matrix with a the shape (m, n)
+
+```
+transpose
+```
+Returns a __view__ of the matrix transpose
 
 ##Functions provided by linalg module
 ```
-Z = zeros(m, n)
+zeros(m, n)
 ```
 Returns a m x n matrix filled with zeros.
 
 ```
-Z = ones(m, n)
+ones(m, n)
 ```
 Returns a m x n matrix filled with ones.
 
 ```
-Z = eye(m)
+eye(m)
 ```
 Returns a m x m matrix with the diagonal of all ones.
 
 ```
-(d, I) = det_inv(X)
+det_inv(X)
 ```
-> Returns the determinant and inverse of X if it exists.
+Returns the determinant and inverse of X if it exists.
 
-> Uses row reduction to an upper triangular matrix.
+Uses Gaussian Elimination to get an upper triangular matrix.
 
 Returns (0, []) if the matrix is singular.
 ```
-Z = pinv(X)
+pinv(X)
 ```
 Returns the results of the pseudo inverse operation of X.
 
 Not sure how robust this is but it works for at least one example.
 ```
-z = dot(X, Y)
+dot(X, Y)
 ```
 The dot product operation.
 ```
-Z = cross(X, Y)
+cross(X, Y)
 ```
 The cross product operation.

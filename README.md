@@ -1,20 +1,39 @@
-#microlinalg
+#Module micro-linalg
 
-This is a small module to provide a matrix class for represention and operations on matrices and a few
- linear algebra matrix operations.
+This is a small module for MicroPython (and Python3) which provides a class for matrix represention and manipulation.
 
-The idea is to be fairly compatible with Numpy arrays and similarly provided operations but not to replace all numpys functionality.
+The idea is to have the functionality implemented in this module be mostly Numpy compatible but not to offer everthing Numpy does.
+
+Currently supporting: (see following sections and Properties, Methods and Functions below for descriptions)
+
+* assignment
+* matrix/scaler elementwise arithmatic operations
+* transpose
+* slicing
+* iteration support
+* sub-matrix assignment
+* reshaping
+* determinant and inverse
+* pseudo inverse (may need work)
+* dot product
+* cross product
+
+<hr>
 
 ###Files:
 
 * __linalg.py__ - matrix class and supporting linear algebra routines.
 * __linalg\_tests.py__ - testing file to check most of the features.
+ * The three __scaler OP matrix__ operations fail under MicroPython due to reflected operations not being fully supported as yet.
+
+<hr>
 
 ##Classes
 
 ```
 matrix
 ```
+<hr>
 
 ####Matrix instantiation
 
@@ -24,9 +43,10 @@ The result is held in ```linalg.dtype```.
 
 A matrix can be constructed using a list of lists representation, where each list member is a row in the matrix.
 ```
+import linalg
 X = linalg.matrix([[0,1,2],[3,4,5],[6,7,8],[9,10,11]])
 ```
-Or by supplying a list of elements and the distance to move to get to the next column (```cstride```) and row (```rstride```). 
+Or by supplying a list of elements and the distance (strides) to move to get to the next column (```cstride```) and row (```rstride```). 
 ```
 X = linalg.matrix([0,1,2,3,4,5,6,7,8,9,10,11], cstride=1, rstride=3)
 ```
@@ -38,6 +58,7 @@ X = mat([[0 ,1 ,2 ],
          [6 ,7 ,8 ],
          [9 ,10,11]])
 ```
+<hr>
 
 ####Matrix slicing
 
@@ -89,6 +110,7 @@ mat([[5, 6],
 >>>
 
 ```
+<hr>
 
 ####Matrix assignment
 
@@ -122,11 +144,24 @@ mat([[0 , 1 , 2 ],
      [6 , 22, 23],
      [9 , 10, 11]])
 ```
+<hr>
 
 ####Iteration
 
-Iterating over a matrix will return a list 1xn matrices (Numpy returns a list of vectors).
- Iterating over a portion of a matrix will return a list of elements.
+Iterating over a matrix will return the rows as a list of 1xn matrices (Numpy returns a list of vectors).
+
+```
+>>>X = linalg.matrix([[0,1,2],[3,4,5],[6,7,8],[9,10,11]])
+>>>[i for i in X]
+[mat([[0, 1, 2]]), mat([[3, 4, 5]]), mat([[6, 7, 8]]), mat([[9 , 10, 11]])]
+```
+Iterating over a slice of a matrix will return a list of elements.
+```
+>>>X = linalg.matrix([[0,1,2],[3,4,5],[6,7,8],[9,10,11]])
+[i for i in X[1,:]]
+[3, 4, 5]
+```
+<hr>
 
 ##Implementation Notes
 
@@ -139,12 +174,13 @@ For example:
 X+2     # matrix plus element-wise addition works
 2+X     # does not work
 ```
-(The __int__ class __\_\_add\_\___ method does not raise __NotImplementedError__ and therefore the matrix __\_\_radd\_\___ method is not invoked).
+(The __int__ class __\_\_add\_\___ method does not raise __NotImplementedError__ and therefore the ```matrix``` __\_\_radd\_\___ method is not invoked).
+<hr>
 
 ####Matrix equality
-Currently X==Y will return true if X and Y have the same shape and the elements are equal. Float and complex determine equality within one ```flt_eps```.
+Currently X==Y will return true if X and Y have the same shape and the elements are equal. Float and complex determine equality within ```flt_eps```.
 
-Numpy does elementwise equality and provide methods such as all_close(), array_equal() to determine matrix equality.
+Under Numpy, X==Y does elementwise equality but also provides methods such as all_close(), array_equal() to determine matrix equality.
 
 The linalg module attempts to determine the supported types and floating point epsilon if float is supported.
 
@@ -157,84 +193,97 @@ For example __flt\_eps__, __stypes__ under a few different platforms:
 #    WiPy           = 1    , [<class 'int'>]
 ```
 Note: ```flt_eps``` is kind of irrelevent when all the work is done on one platform but the ```linalg_test``` file uses it to determine matrix equality.
+<hr>
 
 ##Properties
 ```
 shape
 ```
-Returns the shape as a tuple (m, n).
+> Returns the shape as a tuple (m, n).
 
 ```
 shape = (p, q)
 ```
-In place shape change (not a copy)
+> In place shape change (not a copy)
 
 ```
 is_square
 ```
-Returns __True__ if a square matrix
+> Returns __True__ if a square matrix
 
 ```
 T
 ```
-Convenience property to return a transposed view
+> Convenience property to return a transposed view
+
+<hr>
 
 ##Methods
 ```
 copy
 ```
-Returns a copy of the matrix
+> Returns a copy of the matrix
 
 ```
-size(axis)
+size(axis=0)
 ``` 
-Returns 0-size, 1-rows, 2-columns defaults to axis=0 (to match Numpy)
+> Returns:
+
+> axis=0 size (n*m) for Numpy comapatibilty
+
+> axis=1 rows
+
+> axis=2 columns
 
 ```
 reshape(m, n)
 ``` 
-Returns a __copy__ of the matrix with a the shape (m, n)
+> Returns a __copy__ of the matrix with a the shape (m, n)
 
 ```
 transpose
 ```
-Returns a __view__ of the matrix transpose
+> Returns a __view__ of the matrix transpose
+
+<hr>
 
 ##Functions provided by linalg module
 ```
 zeros(m, n)
 ```
-Returns a m x n matrix filled with zeros.
+> Returns a m x n matrix filled with zeros.
 
 ```
 ones(m, n)
 ```
-Returns a m x n matrix filled with ones.
+> Returns a m x n matrix filled with ones.
 
 ```
 eye(m)
 ```
-Returns a m x m matrix with the diagonal of all ones.
+> Returns a m x m matrix with the diagonal of all ones.
 
 ```
 det_inv(X)
 ```
-Returns the determinant and inverse of X if it exists.
+> Returns the determinant and inverse of X if it exists.
+> Uses Gaussian Elimination to get an upper triangular matrix.
+>
+> Returns (0, []) if the matrix is singular.
 
-Uses Gaussian Elimination to get an upper triangular matrix.
-
-Returns (0, []) if the matrix is singular.
 ```
 pinv(X)
 ```
-Returns the results of the pseudo inverse operation of X.
+> Returns the results of the pseudo inverse operation of X.
+>
+> Not sure how robust this is but it works for at least one example.
 
-Not sure how robust this is but it works for at least one example.
 ```
 dot(X, Y)
 ```
-The dot product operation.
+> The dot product operation.
+
 ```
 cross(X, Y)
 ```
-The cross product operation.
+> The cross product operation.

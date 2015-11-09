@@ -182,7 +182,7 @@ class matrix(object):
             k = 0
             for i in range(s0, p0):
                 for j in range(s1, p1):
-                    self.data[i*self.rstride + j*self.cstride] = val[k]
+                    self.data[i*self.rstride + j*self.cstride] = self.dtype(val[k])
                     k = (k + 1) % len(val)
 
     # there is also __delitem__
@@ -371,7 +371,7 @@ def det_inv(x):
         # divide each row element by [0] to give a one in the first position
         # (may have to find a row to switch with if first element is 0)
         x = x.copy()
-        inverse = eye(len(x))
+        inverse = eye(len(x))*1.0
         sign = 1
         factors = []
         p = 0

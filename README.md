@@ -229,7 +229,7 @@ size(axis=0)
 ``` 
 > Returns:
 
-> axis=0 size (n*m) for Numpy comapatibilty
+> axis=0 size (n*m) for Numpy compatibilty
 
 > axis=1 rows
 

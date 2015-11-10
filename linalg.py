@@ -91,7 +91,7 @@ class matrix(object):
         '''
         Returns a matrix if m > 1
         else the next numeric element of the vector.
-        differs from numpy (returns vectors if selected bia slice)
+        (Numpy returns vectors if selected via slice)
         '''
         if self.cur >= self.cnt_lim:
             raise StopIteration
@@ -475,8 +475,8 @@ def cross(X,  Y):
         else:
             raise ValueError('shape mismatch')
     else:
-        raise ValueError('incompatible dimensions for cross product
-                         (must be 2 or 3)')
+        raise ValueError('incompatible dimensions for cross product'
+                         ' (must be 2 or 3)')
 
 
 def mf():

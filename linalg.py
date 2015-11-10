@@ -28,6 +28,7 @@ SOFTWARE.
 stypes = [int]
 flt_eps = 1
 
+
 class matrix(object):
 
     def __init__(self, data, cstride=0, rstride=0):
@@ -58,7 +59,8 @@ class matrix(object):
                 # is data[0] a list
                 if (type(data[0]) == list):
                     self.n = len(data[0])
-            self.data = [data[i][j] for i in range(self.m) for j in range(self.n)]
+            self.data = [data[i][j]
+                         for i in range(self.m) for j in range(self.n)]
             self.cstride = 1
             self.rstride = self.n
         # ensure all elements are of the same type
@@ -101,7 +103,8 @@ class matrix(object):
 
     def slice_to_offset(self, r0, r1, c0, c1):
         # check values and limit them
-        nd = [self.data[i*self.rstride + j*self.cstride] for i in range(r0, r1) for j in range(c0, c1)]
+        nd = [self.data[i*self.rstride + j*self.cstride]
+              for i in range(r0, r1) for j in range(c0, c1)]
         return matrix(nd, cstride=1, rstride=(c1-c0))
 
     def slice_indices(self, index, axis=0):
@@ -173,16 +176,17 @@ class matrix(object):
         else:  # slice
             s1, p1 = self.slice_indices(index[1], 1)
         if type(val) == matrix:
-             val = val.data
+            val = val.data
         elif type(val) != list:
-             val = [val]
+            val = [val]
         if not all([type(i) in stypes for i in val]):
             raise ValueError('Non numeric entry')
         else:
             k = 0
             for i in range(s0, p0):
                 for j in range(s1, p1):
-                    self.data[i*self.rstride + j*self.cstride] = self.dtype(val[k])
+                    self.data[i*self.rstride + j*self.cstride] = (
+                              self.dtype(val[k]))
                     k = (k + 1) % len(val)
 
     # there is also __delitem__
@@ -222,7 +226,8 @@ class matrix(object):
             return matrix(ndata, cstride=self.cstride, rstride=self.rstride)
         elif (type(a) == matrix):
             # element by element multiplication
-            ndata = [[self[i,j]+a[i,j] for j in range(self.n)] for i in range(self.m)]
+            ndata = [[self[i, j]+a[i, j]
+                     for j in range(self.n)] for i in range(self.m)]
             return matrix(ndata)
         raise NotImplementedError()
 
@@ -236,7 +241,8 @@ class matrix(object):
             return matrix(ndata, cstride=self.cstride, rstride=self.rstride)
         elif (type(a) == matrix):
             # element by element subtraction
-            ndata = [[self[i,j]-a[i,j] for j in range(self.n)] for i in range(self.m)]
+            ndata = [[self[i, j]-a[i, j]
+                     for j in range(self.n)] for i in range(self.m)]
             return matrix(ndata)
         raise NotImplementedError()
 
@@ -254,13 +260,14 @@ class matrix(object):
             return matrix(ndata, cstride=self.cstride, rstride=self.rstride)
         elif (type(a) == matrix):
             # element by element multiplication
-            ndata = [[self[i,j]*a[i,j] for j in range(self.n)] for i in range(self.m)]
+            ndata = [[self[i, j]*a[i, j]
+                     for j in range(self.n)] for i in range(self.m)]
             return matrix(ndata)
         raise NotImplementedError()
 
     def __rmul__(self, a):
-        ''' uPy int,float __mul__ does not yet implement the reflected operation call
-            if an operation raises NotImplemented exception
+        ''' uPy int,float __mul__ does not yet implement the reflected
+            operation call if an operation raises NotImplemented exception
             so __rmul__ never gets called.
         '''
         # scaler * matrix element by element multiplication
@@ -273,7 +280,8 @@ class matrix(object):
         if type(a) in stypes:
             try:
                 ndata = [self.data[i]/a for i in range(len(self.data))]
-                return matrix(ndata, cstride=self.cstride, rstride=self.rstride)
+                return matrix(ndata,
+                              cstride=self.cstride, rstride=self.rstride)
             except ZeroDivisionError:
                 raise ZeroDivisionError('division by zero')
         else:
@@ -284,7 +292,8 @@ class matrix(object):
         if type(a) in stypes:
             try:
                 ndata = [self.data[i]//a for i in range(len(self.data))]
-                return matrix(ndata, cstride=self.cstride, rstride=self.rstride)
+                return matrix(ndata,
+                              cstride=self.cstride, rstride=self.rstride)
             except ZeroDivisionError:
                 raise ZeroDivisionError('division by zero')
         else:
@@ -292,7 +301,8 @@ class matrix(object):
 
     def copy(self):
         """ Return a copy of matrix, not just a view """
-        return matrix([i for i in self.data], cstride=self.cstride, rstride=self.rstride)
+        return matrix([i for i in self.data],
+                      cstride=self.cstride, rstride=self.rstride)
 
     def size(self, axis=0):
         """ 0 entries
@@ -351,7 +361,7 @@ def ones(m, n):
 def eye(m):
     Z = zeros(m, m)
     for i in range(m):
-        Z[i,i] = 1
+        Z[i, i] = 1
     return Z
 
 
@@ -376,107 +386,111 @@ def det_inv(x):
         factors = []
         p = 0
         while p < len(x):
-            d = x[p, p]
+            d = x[p,  p]
             if abs(d) < flt_eps:
                 # pivot == 0 need to swap a row
-                # need to check if swap row also has a zero at the same position
+                # check if swap row also has a zero at the same position
                 np = 1
-                while (p+np) < len(x) and x[p+np, p] < flt_eps:
+                while (p+np) < len(x) and x[p+np,  p] < flt_eps:
                     np += 1
                 if (p+np) == len(x):
                     # singular
-                    return [0, []]
+                    return [0,  []]
                 # swap rows
                 z = x[p+np]
-                x[p+np,:] = x[p]
-                x[p,:] = z
+                x[p+np, :] = x[p]
+                x[p, :] = z
                 # do identity
                 z = inverse[p+np]
-                inverse[p+np,:] = inverse[p]
-                inverse[p,:] = z
+                inverse[p+np, :] = inverse[p]
+                inverse[p, :] = z
                 # change sign of det
                 sign = -sign
                 continue
             factors.append(d)
             # change target row
-            for n in range(p,len(x)):
-                x[p,n] = x[p,n] / d
+            for n in range(p, len(x)):
+                x[p, n] = x[p, n] / d
             # need to do the entire row for the inverse
             for n in range(len(x)):
-                inverse[p,n] = inverse[p,n] / d
+                inverse[p, n] = inverse[p, n] / d
             # eliminate position in the following rows
-            for i in range(p+1,len(x)):
+            for i in range(p+1, len(x)):
                 # multiplier is that column entry
-                t = x[i,p]
-                for j in range(p,len(x)):
-                    x[i,j] = x[i,j] - (t * x[p,j])
+                t = x[i, p]
+                for j in range(p, len(x)):
+                    x[i, j] = x[i, j] - (t * x[p, j])
                 for j in range(len(x)):
-                    inverse[i,j] = inverse[i,j] - (t * inverse[p,j])
+                    inverse[i, j] = inverse[i, j] - (t * inverse[p, j])
             p += 1
         s = sign
         for i in factors:
             s = s * i  # determinant
         # travel through the rows eliminating upper diagonal non-zero values
         for i in range(len(x)-1):
-            # final row should already be all zeros except for the final position
-            for p in range(i+1,len(x)):
+            # final row should already be all zeros
+            # except for the final position
+            for p in range(i+1, len(x)):
                 # multiplier is that column entry
-                t = x[i,p]
-                for j in range(i+1,len(x)):
-                    x[i,j] = x[i,j] - (t * x[p,j])
+                t = x[i, p]
+                for j in range(i+1, len(x)):
+                    x[i, j] = x[i, j] - (t * x[p, j])
                 for j in range(len(x)):
-                    inverse[i,j] = inverse[i,j] - (t * inverse[p,j])
-        return (s, inverse)
+                    inverse[i, j] = inverse[i, j] - (t * inverse[p, j])
+        return (s,  inverse)
 
 
 def pinv(X):
     ''' Calculates the pseudo inverse Adagger = (A'A)^-1.A' '''
     Xt = X.transpose()
-    d,Z = det_inv(dot(Xt,X))
-    return dot(Z,Xt)
+    d, Z = det_inv(dot(Xt, X))
+    return dot(Z, Xt)
 
 
-def dot(X,Y):
+def dot(X, Y):
     ''' Dot product '''
     if X.size(2) == Y.size(1):
         Z = []
         for k in range(X.size(1)):
             for j in range(Y.size(2)):
-                Z.append(sum([X[k,i] * Y[i,j] for i in range(Y.size(1))]))
-        return matrix(Z, cstride=1, rstride=Y.size(2))
+                Z.append(sum([X[k, i] * Y[i, j] for i in range(Y.size(1))]))
+        return matrix(Z,  cstride=1,  rstride=Y.size(2))
     else:
         raise ValueError('shapes not aligned')
 
 
-def cross(X, Y):
+def cross(X,  Y):
     ''' Cross product '''
-    if (X.n in (2, 3)) and (Y.n in (2, 3)):
+    if (X.n in (2,  3)) and (Y.n in (2,  3)):
         if X.m == Y.m:
             Z = []
-            for k in range(min(X.m, Y.m)):
-                z = X[k,0]*Y[k,1] - X[k,1]*Y[k,0]
+            for k in range(min(X.m,  Y.m)):
+                z = X[k, 0]*Y[k, 1] - X[k, 1]*Y[k, 0]
                 if (X.n == 3) and (Y.n == 3):
-                    Z.append([X[k,1]*Y[k,2] - X[k,2]*Y[k,1], X[k,2]*Y[k,0] - X[k,0]*Y[k,2], z])
+                    Z.append([X[k, 1]*Y[k, 2] - X[k, 2]*Y[k, 1],
+                              X[k, 2]*Y[k, 0] - X[k, 0]*Y[k, 2],  z])
                 else:
                     Z.append([z])
             return matrix(Z)
         else:
             raise ValueError('shape mismatch')
     else:
-        raise ValueError('incompatible dimensions for cross product (must be 2 or 3)')
+        raise ValueError('incompatible dimensions for cross product
+                         (must be 2 or 3)')
+
 
 def mf():
-  ''' Determine floating point resolution '''
-  i = 0
-  x = '1.0'
-  y = x
-  z = float(x)
-  while y == str(z):
-      x = str(x) + '1'
-      z = float(x)
-      y = str(x)
-      i = i + 1
-  return i
+    ''' Determine floating point resolution '''
+    i = 0
+    x = '1.0'
+    y = x
+    z = float(x)
+    while y == str(z):
+        x = str(x) + '1'
+        z = float(x)
+        y = str(x)
+        i = i + 1
+    return i
 
 # Determine supported types
 try:

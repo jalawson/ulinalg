@@ -1,5 +1,6 @@
 # test cases for the microlinalg package
 
+import sys
 import linalg
 
 # linalg tries to determine the machine epsilon
@@ -31,6 +32,29 @@ def construct():
 
     return result
 
+def list_ops():
+
+    result = {}
+
+    X = linalg.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
+    Ylist = [1,2,3]
+    Ymatrix = linalg.matrix([[1,2,3]])
+
+    try:
+        result['matrix + list'] = matrix_compare(X+Ylist, linalg.matrix([[1,3,5],[5,7,9],[9,11,13],[13,15,17]]))
+    except Exception as e:
+        result['matrix + list'] = (False, e)
+    try:
+        result['matrix + row'] = matrix_compare(X+Ymatrix, linalg.matrix([[1,3,5],[5,7,9],[9,11,13],[13,15,17]]))
+    except Exception as e:
+        result['matrix + row'] = (False, e)
+    try:
+        result['matrix + col'] = matrix_compare(X+Ymatrix.T, linalg.matrix([[1,3,5],[5,7,9],[9,11,13],[13,15,17]]))
+    except Exception as e:
+        result['matrix + col'] = (False, e)
+
+    return result
+
 def scaler():
 
     result = {}
@@ -38,19 +62,20 @@ def scaler():
     x10 = linalg.matrix([[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]])
     x11 = linalg.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
     try:
-        result['scaler matrix multiplication'] = matrix_compare(2*x10, linalg.matrix([[0, 2, 4, 6],[8, 10, 12, 14],[16, 18, 20, 22],[24, 26, 28, 30]]))
+        result['scaler * matrix'] = matrix_compare(2*x10, linalg.matrix([[0, 2, 4, 6],[8, 10, 12, 14],[16, 18, 20, 22],[24, 26, 28, 30]]))
     except TypeError:
-        result['scaler matrix multiplication'] = False
+        result['scaler * matrix'] = (False, 'TypeError')
     try:
         result['scaler + matrix'] = matrix_compare(2.1+x10, linalg.matrix([[2.1 , 3.1 , 4.1 , 5.1 ],[6.1 , 7.1 , 8.1 , 9.1 ],[10.1, 11.1, 12.1, 13.1],[14.1, 15.1, 16.1, 17.1]]))
     except TypeError:
-        result['scaler + matrix'] = False
+        result['scaler + matrix'] = (False, 'TypeError')
     try:
         result['scaler - matrix'] = matrix_compare(1.4-x10, linalg.matrix([[1.4, 0.3999999999999999, -0.6000000000000001 , -1.6],[-2.6, -3.6, -4.6, -5.6],[-6.6, -7.6, -8.6, -9.6],[-10.6, -11.6, -12.6, -13.6]]))
     except TypeError:
-        result['scaler - matrix'] = False
+        result['scaler - matrix'] = (False, 'TypeError')
     result['matrix + scaler'] = matrix_compare(x10+2.1, linalg.matrix([[2.1 , 3.1 , 4.1 , 5.1 ],[6.1 , 7.1 , 8.1 , 9.1 ],[10.1, 11.1, 12.1, 13.1],[14.1, 15.1, 16.1, 17.1]]))
     result['matrix - scaler'] = matrix_compare(x10-1.4, linalg.matrix([[-1.4, -0.3999999999999999, 0.6000000000000001 , 1.6],[2.6, 3.6, 4.6, 5.6],[6.6, 7.6, 8.6, 9.6],[10.6, 11.6, 12.6, 13.6]]))
+
     return result
 
 def assignment():
@@ -183,15 +208,24 @@ for t in [construct,
           products,
           assignment,
           slicing,
-          iteration
+          iteration,
+          list_ops
          ]:
     results = t()
     print('---', t.__name__, '-'*(52-len(t.__name__)))
     for k,v in results.items():
-        print('Test : {0:36s} ===> {1}'.format(k, ['    Fail','Pass'][v]))
+        if type(v) == tuple:
+            print('Test : {0:36s} ===> {1} : {2}'.format(k, ['    Fail','Pass'][v[0]], v[1]))
+        else:
+            print('Test : {0:36s} ===> {1}'.format(k, ['    Fail','Pass'][v]))
     final_results.update(results)
 
 tests_total = len(final_results)
-tests_passed = sum(final_results.values())
+tests_passed = 0
+for i in final_results.values():
+    if type(i) == tuple:
+        tests_passed += i[0]
+    else:
+        tests_passed += i
 print('-'*57)
 print('Total ==> {0:3d} Passed ==> {1:3d} Failed ==> {2:3d}'.format(tests_total, tests_passed, tests_total-tests_passed))

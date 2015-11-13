@@ -2,9 +2,9 @@
 
 This is a small module for MicroPython (and Python3) which provides a class for matrix represention and manipulation.
 
-The idea is to have whatever functionality is implemented in this module to be compatible with 2-D Numpy arrays but not to offer everthing Numpy does.
+The idea is to have whatever limited functionality is implemented in this module to be compatible with 2-D Numpy arrays.
 
-Currently supporting: (see following sections and Properties, Methods and Functions below for descriptions)
+Currently supported: (see following sections and Properties, Methods and Functions below for descriptions)
 
 * assignment
 * matrix/scaler elementwise arithmatic operations

@@ -39,19 +39,24 @@ def list_ops():
     X = linalg.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
     Ylist = [1,2,3]
     Ymatrix = linalg.matrix([[1,2,3]])
+    Zmatrix = linalg.matrix([[1,2,3,4]])
 
     try:
         result['matrix + list'] = matrix_compare(X+Ylist, linalg.matrix([[1,3,5],[5,7,9],[9,11,13],[13,15,17]]))
     except Exception as e:
         result['matrix + list'] = (False, e)
     try:
-        result['matrix + row'] = matrix_compare(X+Ymatrix, linalg.matrix([[1,3,5],[5,7,9],[9,11,13],[13,15,17]]))
+        result['matrix + row matrix'] = matrix_compare(X+Ymatrix, linalg.matrix([[1,3,5],[5,7,9],[9,11,13],[13,15,17]]))
     except Exception as e:
-        result['matrix + row'] = (False, e)
+        result['matrix + row matrix'] = (False, e)
     try:
-        result['matrix + col'] = matrix_compare(X+Ymatrix.T, linalg.matrix([[1,3,5],[5,7,9],[9,11,13],[13,15,17]]))
+        result['matrix + col matrix'] = matrix_compare(X+Zmatrix.T, linalg.matrix([[1,2,3],[6,7,8],[11,12,13],[16,17,18]]))
     except Exception as e:
-        result['matrix + col'] = (False, e)
+        result['matrix + col matrix'] = (False, e)
+    try:
+        result['matrix + col broadcast err'] = matrix_compare(X+Ymatrix.T, linalg.matrix([[1,3,5],[5,7,9],[9,11,13],[13,15,17]]))
+    except Exception as e:
+        result['matrix + col broadcast err'] = True
 
     return result
 

@@ -220,16 +220,40 @@ class matrix(object):
     # Reflected operations are not yet implemented in MicroPython
 
     def __add__(self, a):
-        # matrix + scaler elementwise scaler adition
         if type(a) in stypes:
-            ndata = [self.data[i]+a for i in range(len(self.data))]
-            return matrix(ndata, cstride=self.cstride, rstride=self.rstride)
+            # matrix + scaler elementwise scaler adition
+            return matrix([self.data[i]+a for i in range(len(self.data))],
+                           cstride=self.cstride, rstride=self.rstride)
+        elif (type(a) == list):
+            raise NotImplementedError('matrix op',type(a))
         elif (type(a) == matrix):
-            # element by element multiplication
-            ndata = [[self[i, j]+a[i, j]
-                     for j in range(self.n)] for i in range(self.m)]
-            return matrix(ndata)
-        raise NotImplementedError()
+            # check if broadcastable
+            # has to have n==n and m==m => elementwise operation
+            if (self.m == a.m) and (self.n == a.n):
+                return matrix([self.data[i] + a.data[i] for i in range(self.size())],
+                              cstride=self.cstride, rstride=self.rstride)
+                #ndata = [[self[i, j]+a[i, j]
+                #         for j in range(self.n)] for i in range(self.m)]
+                #return matrix(ndata)
+            elif (self.m == a.m):
+                # should be able to do this with the .data and strides
+                # m==m n!=n => column wise operation
+                return matrix([self.data[j*self.rstride + i] + a.data[j] for j in range(self.m) for i in range(self.n)],
+                               cstride=self.cstride, rstride=self.rstride)
+
+                #Y = self.copy()
+                #for i in range(self.n):
+                #    Y[:,i] = [self[:,i][j,0] + a[j,0] for j in range(Y.m)]
+                #return Y
+            elif (self.n == a.n):
+                # m!=m n==n => row wise operation
+                Y = self.copy()
+                for i in range(self.m):
+                    Y[i,:] = [self[i,:][0,j] + a[0,j] for j in range(Y.n)]
+                return Y
+            else:
+                raise ValueError('could not be broadcast')
+        raise NotImplementedError('matrix op',type(a))
 
     def __radd__(self, a):
         return self.__add__(a)

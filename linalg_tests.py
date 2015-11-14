@@ -80,6 +80,10 @@ def scaler():
         result['scaler - matrix'] = (False, 'TypeError')
     result['matrix + scaler'] = matrix_compare(x10+2.1, linalg.matrix([[2.1 , 3.1 , 4.1 , 5.1 ],[6.1 , 7.1 , 8.1 , 9.1 ],[10.1, 11.1, 12.1, 13.1],[14.1, 15.1, 16.1, 17.1]]))
     result['matrix - scaler'] = matrix_compare(x10-1.4, linalg.matrix([[-1.4, -0.3999999999999999, 0.6000000000000001 , 1.6],[2.6, 3.6, 4.6, 5.6],[6.6, 7.6, 8.6, 9.6],[10.6, 11.6, 12.6, 13.6]]))
+    result['matrix * scaler'] = matrix_compare(x10*3, linalg.matrix([[0, 3, 6, 9],[12, 15, 18, 21],[24, 27, 30, 33],[36, 39, 42, 45]]))
+    result['matrix / scaler'] = matrix_compare(x10/3, linalg.matrix([[0.0, 0.3333333333333333, 0.6666666666666666, 1.0],[1.333333333333333 , 1.666666666666667 , 2.0, 2.333333333333333],[2.666666666666667 , 3.0, 3.333333333333333 , 3.666666666666667],[4.0, 4.333333333333333 , 4.666666666666667 , 5.0]]))
+    result['matrix // scaler'] = matrix_compare(x10//3, linalg.matrix([[0, 0, 0, 1],[1, 1, 2, 2],[2, 3, 3, 3],[4, 4, 4, 5]]))
+    result['negate matrix'] = matrix_compare(-x10, linalg.matrix([[0,  -1,  -2,  -3],[-4,  -5,  -6,  -7],[-8,  -9, -10, -11],[-12, -13, -14, -15]]))
 
     return result
 

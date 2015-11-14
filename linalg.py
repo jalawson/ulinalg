@@ -26,6 +26,7 @@ SOFTWARE.
 '''
 
 stypes = [int]
+estypes = []
 flt_eps = 1
 
 
@@ -219,64 +220,52 @@ class matrix(object):
 
     # Reflected operations are not yet implemented in MicroPython
 
+    def __neg__(self):
+        return matrix([self.data[i]*(-1) for i in range(len(self.data))],
+                      cstride=self.cstride, rstride=self.rstride)
+
     def __add__(self, a):
         if type(a) in stypes:
-            # matrix + scaler elementwise scaler adition
+            # matrix + scaler elementwise addition
             return matrix([self.data[i]+a for i in range(len(self.data))],
                            cstride=self.cstride, rstride=self.rstride)
         elif (type(a) == list):
             raise NotImplementedError('matrix op',type(a))
         elif (type(a) == matrix):
-            # check if broadcastable
-            # has to have n==n and m==m => elementwise operation
             if (self.m == a.m) and (self.n == a.n):
+                # elementwise
                 return matrix([self.data[i] + a.data[i] for i in range(self.size())],
                               cstride=self.cstride, rstride=self.rstride)
-                #ndata = [[self[i, j]+a[i, j]
-                #         for j in range(self.n)] for i in range(self.m)]
-                #return matrix(ndata)
             elif (self.m == a.m):
-                # m==m n!=n => column wise operation
-                #return matrix([self.data[j*self.rstride + i] + a.data[j] for j in range(self.m) for i in range(self.n)],
-                #               cstride=self.cstride, rstride=self.rstride)
+                # m==m n!=n => column-wise row operation
                 Y = self.copy()
                 for i in range(self.n):
-                    Y[:,i] = [self[:,i][j,0] + a[j,0] for j in range(Y.m)]
+                    Y[:,i] = Y[:,i] + a
                 return Y
             elif (self.n == a.n):
-                # m!=m n==n => row wise operation
-                print('here')
-                return matrix([self.data[i*self.rstride + j] + a.data[j] for i in range(self.m) for j in range(self.n)],
-                               cstride=self.cstride, rstride=self.rstride)
-                #Y = self.copy()
-                #for i in range(self.m):
-                #    Y[i,:] = [self[i,:][0,j] + a[0,j] for j in range(Y.n)]
-                #return Y
+                # m!=m n==n => row-wise col operation
+                Y = self.copy()
+                for i in range(self.m):
+                    Y[i,:] = Y[i,:] + a
+                return Y
             else:
                 raise ValueError('could not be broadcast')
-        raise NotImplementedError('matrix op',type(a))
+        raise NotImplementedError('__add__ matrix + ',type(a))
 
     def __radd__(self, a):
+        # comutative
         return self.__add__(a)
 
     def __sub__(self, a):
         # matrix - scaler elementwise scaler subtraction
-        if type(a) in stypes:
-            ndata = [self.data[i]-a for i in range(len(self.data))]
-            return matrix(ndata, cstride=self.cstride, rstride=self.rstride)
-        elif (type(a) == matrix):
-            # element by element subtraction
-            ndata = [[self[i, j]-a[i, j]
-                     for j in range(self.n)] for i in range(self.m)]
-            return matrix(ndata)
-        raise NotImplementedError()
+        if type(a) in estypes:
+            return self.__add__(-a)
+        raise NotImplementedError('__sub__ matrix -',type(a))
 
     def __rsub__(self, a):
         # scaler - matrix elementwise scaler subtraction
-        if type(a) in stypes:
-            ndata = [a - self.data[i] for i in range(len(self.data))]
-            return matrix(ndata, cstride=self.cstride, rstride=self.rstride)
-        raise NotImplementedError()
+        self = -self
+        return self.__add__(a)
 
     def __mul__(self, a):
         # matrix * scaler element by scaler multiplication
@@ -527,3 +516,6 @@ try:
     stypes.append(complex)
 except:
     pass
+# extended types
+estypes = [matrix]
+estypes.extend(stypes)

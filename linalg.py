@@ -219,99 +219,110 @@ class matrix(object):
         return s
 
     # Reflected operations are not yet implemented in MicroPython
+    ''' uPy int,float __mul__ does not yet implement the reflected
+        operation call if an operation raises NotImplemented exception
+        so __rmul__ never gets called.
+    '''
 
     def __neg__(self):
         return matrix([self.data[i]*(-1) for i in range(len(self.data))],
                       cstride=self.cstride, rstride=self.rstride)
 
-    def __add__(self, a):
+    def __do_op__(self, a, b, op):
+        if op == '+':
+            return (a + b)
+        elif op == '-':
+            return (a - b)
+        elif op == '*':
+            return (a * b)
+        elif op == '/':
+            try:
+                return (a / b)
+            except ZeroDivisionError:
+                raise ZeroDivisionError('division by zero')
+        elif op == '//':
+            try:
+                return (a // b)
+            except ZeroDivisionError:
+                raise ZeroDivisionError('division by zero')
+        else:
+            raise NotImplementedError('Unknown operator ',op)
+
+    def __OP__(self, a, op):
         if type(a) in stypes:
-            # matrix + scaler elementwise addition
-            return matrix([self.data[i]+a for i in range(len(self.data))],
+            # matrix - scaler elementwise operation
+            return matrix([self.__do_op__(self.data[i], a, op) for i in range(len(self.data))],
                            cstride=self.cstride, rstride=self.rstride)
         elif (type(a) == list):
-            raise NotImplementedError('matrix op',type(a))
+            raise NotImplementedError('matrix', op, type(a))
         elif (type(a) == matrix):
             if (self.m == a.m) and (self.n == a.n):
-                # elementwise
-                return matrix([self.data[i] + a.data[i] for i in range(self.size())],
+                # matrix - matrix elementwise operation
+                return matrix([self.__do_op__(self.data[i], a.data[i], op) for i in range(self.size())],
                               cstride=self.cstride, rstride=self.rstride)
             elif (self.m == a.m):
                 # m==m n!=n => column-wise row operation
                 Y = self.copy()
                 for i in range(self.n):
-                    Y[:,i] = Y[:,i] + a
+                    #Y[:,i] = Y[:,i] + a
+                    Y[:,i] = self.__do_op__(Y[:,i], a, op)
                 return Y
             elif (self.n == a.n):
                 # m!=m n==n => row-wise col operation
                 Y = self.copy()
                 for i in range(self.m):
-                    Y[i,:] = Y[i,:] + a
+                    #Y[i,:] = Y[i,:] + a
+                    Y[i,:] = self.__do_op__(Y[i,:], a, op)
                 return Y
             else:
                 raise ValueError('could not be broadcast')
-        raise NotImplementedError('__add__ matrix + ',type(a))
+        raise NotImplementedError('__OP__ matrix + ',type(a))
+
+    def __add__(self, a):
+        ''' matrix - scaler elementwise addition'''
+        return self.__OP__(a, '+')
 
     def __radd__(self, a):
-        # comutative
+        ''' scaler - matrix elementwise addition'''
+        ''' commutative '''
         return self.__add__(a)
 
     def __sub__(self, a):
-        # matrix - scaler elementwise scaler subtraction
+        ''' matrix - scaler elementwise subtraction '''
         if type(a) in estypes:
             return self.__add__(-a)
         raise NotImplementedError('__sub__ matrix -',type(a))
 
     def __rsub__(self, a):
-        # scaler - matrix elementwise scaler subtraction
+        ''' scaler - matrix elementwise subtraction '''
         self = -self
         return self.__add__(a)
 
     def __mul__(self, a):
-        # matrix * scaler element by scaler multiplication
-        if type(a) in stypes:
-            ndata = [self.data[i]*a for i in range(len(self.data))]
-            return matrix(ndata, cstride=self.cstride, rstride=self.rstride)
-        elif (type(a) == matrix):
-            # element by element multiplication
-            ndata = [[self[i, j]*a[i, j]
-                     for j in range(self.n)] for i in range(self.m)]
-            return matrix(ndata)
-        raise NotImplementedError()
+        ''' matrix scaler elementwise multiplication '''
+        return self.__OP__(a, '*')
 
     def __rmul__(self, a):
-        ''' uPy int,float __mul__ does not yet implement the reflected
-            operation call if an operation raises NotImplemented exception
-            so __rmul__ never gets called.
+        ''' scaler * matrix elementwiaw multiplication 
+            commutative
         '''
-        # scaler * matrix element by element multiplication
-        if type(a) in stypes:
-            ndata = [self.data[i]*a for i in range(len(self.data))]
-            return matrix(ndata, cstride=self.cstride, rstride=self.rstride)
+        return self.__mul__(a)
 
     def __truediv__(self, a):
-        # matrix / scaler element by scaler multiplication
-        if type(a) in stypes:
-            try:
-                ndata = [self.data[i]/a for i in range(len(self.data))]
-                return matrix(ndata,
-                              cstride=self.cstride, rstride=self.rstride)
-            except ZeroDivisionError:
-                raise ZeroDivisionError('division by zero')
-        else:
-            raise NotImplementedError()
+        ''' matrix / scaler elementwise division '''
+        return self.__OP__(a, '/')
+
+    def __rtruediv__(self, a):
+        ''' scaler / matrix elementwise division '''
+        return self.__OP__(a, '/')
 
     def __floordiv__(self, a):
-        # matrix / scaler element by scaler multiplication
-        if type(a) in stypes:
-            try:
-                ndata = [self.data[i]//a for i in range(len(self.data))]
-                return matrix(ndata,
-                              cstride=self.cstride, rstride=self.rstride)
-            except ZeroDivisionError:
-                raise ZeroDivisionError('division by zero')
-        else:
-            raise NotImplementedError()
+        ''' matrix // scaler elementwise integer division '''
+        return self.__OP__(a, '//')
+
+    def __rfloordiv__(self, a):
+        ''' scaler // matrix elementwise integer division '''
+        return self.__OP__(a, '//')
 
     def copy(self):
         """ Return a copy of matrix, not just a view """

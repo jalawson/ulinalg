@@ -235,6 +235,8 @@ class matrix(object):
             return (a - b)
         elif op == '*':
             return (a * b)
+        elif op == '**':
+            return (a ** b)
         elif op == '/':
             try:
                 return (a / b)
@@ -323,6 +325,15 @@ class matrix(object):
     def __rfloordiv__(self, a):
         ''' scaler // matrix elementwise integer division '''
         return self.__OP__(a, '//')
+
+    def __pow__(self, a):
+        ''' matrix ** scaler elementwise power '''
+        print('here')
+        return self.__OP__(a, '**')
+
+    def __rpow__(self, a):
+        ''' scaler ** matrix elementwise power '''
+        return self.__OP__(a, '**')
 
     def copy(self):
         """ Return a copy of matrix, not just a view """

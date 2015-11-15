@@ -84,7 +84,10 @@ def scaler():
     result['matrix / scaler'] = matrix_compare(x10/3, linalg.matrix([[0.0, 0.3333333333333333, 0.6666666666666666, 1.0],[1.333333333333333 , 1.666666666666667 , 2.0, 2.333333333333333],[2.666666666666667 , 3.0, 3.333333333333333 , 3.666666666666667],[4.0, 4.333333333333333 , 4.666666666666667 , 5.0]]))
     result['matrix // scaler'] = matrix_compare(x10//3, linalg.matrix([[0, 0, 0, 1],[1, 1, 2, 2],[2, 3, 3, 3],[4, 4, 4, 5]]))
     result['negate matrix'] = matrix_compare(-x10, linalg.matrix([[0,  -1,  -2,  -3],[-4,  -5,  -6,  -7],[-8,  -9, -10, -11],[-12, -13, -14, -15]]))
-
+    try:
+        result['matrix ** scaler'] = matrix_compare(x10**2, linalg.matrix([[ 0, 1, 4, 9],[16 , 25, 36, 49],[64, 81, 100, 121],[144, 169, 196, 225]]))
+    except:
+        result['matrix ** scaler'] = (False, 'NotImplemented')
     return result
 
 def assignment():

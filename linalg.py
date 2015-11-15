@@ -258,7 +258,13 @@ class matrix(object):
         elif (type(a) == list):
             # matrix - list elementwise operation
             # hack - convert list to matrix and resubmit then it gets handled below
-            return self.__OP__(matrix([a]), op)
+            # if self.n = 1 try transpose other wise broadcast error to match numpy
+            if (self.n == 1) and (len(a) == self.m):
+                return self.__OP__(matrix([a]).T, op)
+            elif len(a) == self.n:
+                return self.__OP__(matrix([a]), op)
+            else:
+                raise ValueError('could not be broadcast')
         elif (type(a) == matrix):
             if (self.m == a.m) and (self.n == a.n):
                 # matrix - matrix elementwise operation

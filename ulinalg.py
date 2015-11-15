@@ -1,6 +1,7 @@
 '''
 
-micro-linalg project to provide a small matrix / linear algebra package
+Part of the micro-linalg project to provide a small
+matrix / linear algebra package for Micropython (Python3)
 
 The MIT License (MIT)
 
@@ -28,11 +29,11 @@ SOFTWARE.
 import umatrix
 
 def zeros(m, n):
-    return matrix([[0 for i in range(n)] for j in range(m)])
+    return umatrix.matrix([[0 for i in range(n)] for j in range(m)])
 
 
 def ones(m, n):
-    return matrix([[1 for i in range(n)] for j in range(m)])
+    return umatrix.matrix([[1 for i in range(n)] for j in range(m)])
 
 
 def eye(m):
@@ -64,11 +65,11 @@ def det_inv(x):
         p = 0
         while p < len(x):
             d = x[p,  p]
-            if abs(d) < flt_eps:
+            if abs(d) < umatrix.flt_eps:
                 # pivot == 0 need to swap a row
                 # check if swap row also has a zero at the same position
                 np = 1
-                while (p+np) < len(x) and x[p+np,  p] < flt_eps:
+                while (p+np) < len(x) and x[p+np,  p] < umatrix.flt_eps:
                     np += 1
                 if (p+np) == len(x):
                     # singular
@@ -131,7 +132,7 @@ def dot(X, Y):
         for k in range(X.size(1)):
             for j in range(Y.size(2)):
                 Z.append(sum([X[k, i] * Y[i, j] for i in range(Y.size(1))]))
-        return matrix(Z,  cstride=1,  rstride=Y.size(2))
+        return umatrix.matrix(Z,  cstride=1,  rstride=Y.size(2))
     else:
         raise ValueError('shapes not aligned')
 
@@ -148,7 +149,7 @@ def cross(X,  Y):
                               X[k, 2]*Y[k, 0] - X[k, 0]*Y[k, 2],  z])
                 else:
                     Z.append([z])
-            return matrix(Z)
+            return umatrix.matrix(Z)
         else:
             raise ValueError('shape mismatch')
     else:

@@ -1,6 +1,7 @@
 '''
 
-micro-linalg project to provide a small matrix / linear algebra package
+Part of the micro-linalg project to provide a small
+matrix / linear algebra package for MicroPython (Python3)
 
 The MIT License (MIT)
 
@@ -343,7 +344,6 @@ class matrix(object):
 
     def __pow__(self, a):
         ''' matrix ** scaler elementwise power '''
-        print('here')
         return self.__OP__(a, '**')
 
     def __rpow__(self, a):

@@ -256,25 +256,34 @@ class matrix(object):
             return matrix([self.__do_op__(self.data[i], a, op) for i in range(len(self.data))],
                            cstride=self.cstride, rstride=self.rstride)
         elif (type(a) == list):
-            raise NotImplementedError('matrix', op, type(a))
+            # matrix - list elementwise operation
+            # hack - convert list to matrix and resubmit then it gets handled below
+            return self.__OP__(matrix([a]), op)
         elif (type(a) == matrix):
             if (self.m == a.m) and (self.n == a.n):
                 # matrix - matrix elementwise operation
                 return matrix([self.__do_op__(self.data[i], a.data[i], op) for i in range(self.size())],
                               cstride=self.cstride, rstride=self.rstride)
+            # generalize the following two elif for > 2 dimensions?
             elif (self.m == a.m):
                 # m==m n!=n => column-wise row operation
                 Y = self.copy()
                 for i in range(self.n):
-                    #Y[:,i] = Y[:,i] + a
-                    Y[:,i] = self.__do_op__(Y[:,i], a, op)
+                    # this call _OP_ for each row and then __OP__ again for each element which then calls __do_op__
+                    #Y[:,i] = self.__do_op__(Y[:,i], a, op)
+                    # this call _OP_ once for each row and __do_op__ for each element - more efficient
+                    for j in range(self.m):
+                         Y[j,i] = self.__do_op__(Y[j,i], a[j,0], op)
                 return Y
             elif (self.n == a.n):
                 # m!=m n==n => row-wise col operation
                 Y = self.copy()
                 for i in range(self.m):
-                    #Y[i,:] = Y[i,:] + a
-                    Y[i,:] = self.__do_op__(Y[i,:], a, op)
+                    # this call _OP_ for each col
+                    #Y[i,:] = self.__do_op__(Y[i,:], a, op)
+                    # this call _OP_ once for each col and __do_op__ for each element - more efficient
+                    for j in range(self.n):
+                         Y[i,j] = self.__do_op__(Y[i,j], a[0,j], op)
                 return Y
             else:
                 raise ValueError('could not be broadcast')
@@ -305,7 +314,7 @@ class matrix(object):
         return self.__OP__(a, '*')
 
     def __rmul__(self, a):
-        ''' scaler * matrix elementwiaw multiplication 
+        ''' scaler * matrix elementwiaw multiplication
             commutative
         '''
         return self.__mul__(a)

@@ -1,8 +1,14 @@
-#Module micro-linalg
+#Module umatrix, ulinalg
 
-This is a small module for MicroPython (and Python3) which provides a class for matrix represention and manipulation.
+These are small modules for MicroPython (Python3) which provide a class for matrix represention, manipulation and a few linear algebra routines.
 
-The goal is to provide a limited implementation matrix module which is functionally compatible with 2-D Numpy arrays.
+The goal is to provide a compact limited implementation matrix module which is functionally compatible with 2-D Numpy arrays.
+
+####Files:
+
+* __umatrix.py__ - matrix class.
+* __ulinalg.py__ - supporting linear algebra routines (requires ```umatrix``` ).
+* __ulinalg\_tests.py__ - testing file to check most of the features.
 
 Currently supported: (see following sections and Properties, Methods and Functions below for descriptions)
 
@@ -25,14 +31,6 @@ Currently supported: (see following sections and Properties, Methods and Functio
 * pseudo inverse (may need work)
 * dot product
 * cross product
-
-<hr>
-
-###Files:
-
-* __umatrix.py__ - matrix class.
-* __ulinalg.py__ - supporting linear algebra routines (requires ```umatrix``` ).
-* __ulinalg\_tests.py__ - testing file to check most of the features.
 
 <hr>
 

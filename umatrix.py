@@ -34,12 +34,14 @@ flt_eps = 1
 class matrix(object):
 
     def __init__(self, data, cstride=0, rstride=0, dtype=None):
-        # data can be of the form
-        # x = array(2) -> array(2) acts like a scaler
-        # x = array([2]) -> array([2]) vector
-        # x = array([1,2,3]) -> array([1,2,3]) vector length 3
-        # x = array([[1,2,3]]) -> array matrix shape (1x3)
-        # if cstride != 0 then interpret data as cstride and rstride
+        ''' Builds a matrix representation of 'data'.
+            'data' can be a list (columns) of lists (rows)
+            [[1,2,3],[4,5,6]] or
+            a simple list organized as determined by rstride and cstride:
+            [1,2,3,4,5,6] cstride=1, rstride=3.
+            Elements will be of highest type included in 'data' or
+            'dtype' can be used to force the type.
+        '''
         if cstride != 0:
             if cstride == 1:
                 self.n = rstride
@@ -51,8 +53,7 @@ class matrix(object):
             self.rstride = rstride
             self.data = data
         else:
-            # else determine from list passed in
-            # get the dimensions
+            # else determine shape from list passed in
             self.n = 1
             if type(data) == int:
                 self.m = 1
@@ -69,9 +70,10 @@ class matrix(object):
         if dtype == None:
             self.dtype = stypes[max([stypes.index(type(i)) for i in self.data])]
         else:
-            if not dtype in stypes:
+            if dtype in stypes:
+                self.dtype = dtype
+            else:
                 raise TypeError('unsupported type', dt)
-            self.dtype = dtype
         self.data = [self.dtype(i) for i in self.data]
 
     def __len__(self):
@@ -165,12 +167,8 @@ class matrix(object):
         if type(index) != tuple:
             # need to make it a slice without the slice function
             raise NotImplementedError('Need to use the slice [1,:] format.')
-        # int and int => single entry gets changed (if val in [int,float])
-        # int and slice => row and columns take on val if val fits integrally
-        # slice and int
-        # slice and slice
-        # get the slice_to_offsets and run through the submatrix assigning
-        # values from val using mod on the rows and columns
+        # int and int => single entry gets changed
+        # combinations of int and slice => row and columns take on elements from val
         if isinstance(index[0], int):
             s0 = index[0]
             p0 = s0+1
@@ -188,6 +186,7 @@ class matrix(object):
         if not all([type(i) in stypes for i in val]):
             raise ValueError('Non numeric entry')
         else:
+            # assign list values wrapping as necessary to fill destination
             k = 0
             for i in range(s0, p0):
                 for j in range(s1, p1):
@@ -200,7 +199,7 @@ class matrix(object):
     # def __str__(self):
     def __repr__(self):
         # things that use __str__ will fallback to __repr__
-        # find max string field size for the matrix elements
+        # find max string field size for formatting
         l = 0
         for i in self.data:
             l = max(l, len(repr(i)))
@@ -224,10 +223,7 @@ class matrix(object):
         return s
 
     # Reflected operations are not yet implemented in MicroPython
-    ''' uPy int,float __mul__ does not yet implement the reflected
-        operation call if an operation raises NotImplemented exception
-        so __rmul__ never gets called.
-    '''
+    # __rmul__ for example will not be invoked
 
     def __neg__(self):
         return matrix([self.data[i]*(-1) for i in range(len(self.data))],
@@ -280,8 +276,6 @@ class matrix(object):
                 # m==m n!=n => column-wise row operation
                 Y = self.copy()
                 for i in range(self.n):
-                    # this call _OP_ for each row and then __OP__ again for each element which then calls __do_op__
-                    #Y[:,i] = self.__do_op__(Y[:,i], a, op)
                     # this call _OP_ once for each row and __do_op__ for each element - more efficient
                     for j in range(self.m):
                          Y[j,i] = self.__do_op__(Y[j,i], a[j,0], op)
@@ -290,8 +284,6 @@ class matrix(object):
                 # m!=m n==n => row-wise col operation
                 Y = self.copy()
                 for i in range(self.m):
-                    # this call _OP_ for each col
-                    #Y[i,:] = self.__do_op__(Y[i,:], a, op)
                     # this call _OP_ once for each col and __do_op__ for each element - more efficient
                     for j in range(self.n):
                          Y[i,j] = self.__do_op__(Y[i,j], a[0,j], op)
@@ -403,7 +395,7 @@ class matrix(object):
         return matrix(self.data, cstride=self.rstride, rstride=self.cstride)
 
 
-def mf():
+def fp_eps():
     ''' Determine floating point resolution '''
     i = 0
     x = '1.0'
@@ -419,7 +411,7 @@ def mf():
 # Determine supported types
 try:
     stypes.append(float)
-    flt_eps = 1./(10**mf())
+    flt_eps = 1./(10**fp_eps())
 except:
     pass
 try:

@@ -43,8 +43,9 @@ umatrix.matrix
 
 ####Matrix instantiation
 
-Elements can be __int__, __float__ or __complex__ depending on the support provided by the particular
- version of MicroPython. All elements will be converted to the most _advanced_ type found (ie. if there is a __float__ in the data, all elements will be converted to __float__).
+Supported matrix element types default to __bool__ and __int__. Support for __float__ and __complex__ are determined by the module upon importing
+ and will depend on MicroPython compilation options and platform. 
+All elements will be converted to the highest indexed type in the order of the above list (ie. if there is a __float__ in the data, all elements will be converted to __float__).
 The result is held in ```umatrix.dtype```. The kwarg ```dtype=``` may also be used to force the type.
 
 A matrix can be constructed using a list of lists representation, where each list member is a row in the matrix.
@@ -133,7 +134,7 @@ mat([[5, 6],
 
 ####Matrix assignment
 
-Matrix elements can be assigned to using int, float, complex, list or from a matrix.
+Matrix elements can be assigned to using __bool__, __int__, __float__, __complex__, __list__ or from a __matrix__.
 A list will assign elements in order from the source and wrap around if required.
 
 ```
@@ -184,7 +185,15 @@ Iterating over a slice of a matrix will return a list of elements.
 
 ##Implementation Notes
 
-####Matrix/Scaler operations
+####Differences from Numpy Arrays
+
+* Slices are always a view in numpy not in umatrix
+* Scaler as left hand side arguement for [+,-,*,\,\\] operations are not supported in umatrix (see below) but a matrix as left hand side is.
+* Single row/col slices are 1-D arrays in numpy and  a 1xn or nx1 matrix in umatrix
+* In numpy you can make a single element array, ```numpy.array(2)``` that acts like a scaler.
+* Doesn't support NaN, Inf, -Inf
+
+####Matrix ```+,-,*,\,\\``` Scaler operations
 Matrices used as the LH argument of a scaler operation will work for elementwise operation.  Using a scaler as the RH argument does not work as reflected operations are not yet supported by MicroPython.
 
 For example:
@@ -193,7 +202,7 @@ For example:
 X+2     # matrix plus element-wise addition works
 2+X     # does not work
 ```
-(The __int__ class __\_\_add\_\___ method does not raise __NotImplementedError__ and therefore the ```umatrix``` __\_\_radd\_\___ method is not invoked).
+The reason seems to be that the __MicroPython__ __int__ class __\_\_add\_\___ method (for example) does not raise __NotImplementedError__ and therefore the ```umatrix``` __\_\_radd\_\___ method is not invoked.
 <hr>
 
 ####Matrix equality
@@ -201,7 +210,7 @@ Currently X==Y will return true if X and Y have the same shape and the elements 
 
 Under Numpy, X==Y does elementwise equality but also provides methods such as all_close(), array_equal() to determine matrix equality.
 
-The linalg module attempts to determine the supported types and floating point epsilon if float is supported.
+The ```umatrix``` module attempts to determine the supported types and floating point epsilon if float is supported.
 
 The results are held in ```umatrix.stypes``` and ```umatrix.flt_eps``` respectively.
 
@@ -260,6 +269,13 @@ reshape(m, n)
 > Returns a __copy__ of the matrix with a the shape (m, n)
 
 ```
+isclose(X, Y, tol=0)
+```
+> Returns True if matrices X and Y have the same shape and the elements are whithin ```tol```.
+>
+> Useful for use with __float__ and __complex__ matrices.
+
+```
 transpose
 ```
 > Returns a __view__ of the matrix transpose
@@ -285,10 +301,12 @@ eye(m)
 ```
 det_inv(X)
 ```
-> Returns the determinant and inverse of X if it exists.
+> Returns the determinant and inverse ```(d, i)``` of X if it exists.
 > Uses Gaussian Elimination to get an upper triangular matrix.
 >
 > Returns (0, []) if the matrix is singular.
+>
+> ```Numpy.linalg``` provides separate functions for ```det``` and ```inv```.
 
 ```
 pinv(X)

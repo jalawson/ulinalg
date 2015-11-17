@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
 
-stypes = [int]
+stypes = [bool, int]
 estypes = []
 flt_eps = 1
 
@@ -358,9 +358,6 @@ class matrix(object):
         """
         return [self.m*self.n, self.m, self.n][axis]
 
-    def __len__(self):
-        return self.m
-
     @property
     def shape(self):
         return (self.m, self.n)
@@ -393,6 +390,13 @@ class matrix(object):
     def transpose(self):
         """ Return a view """
         return matrix(self.data, cstride=self.rstride, rstride=self.cstride)
+
+    def isclose(self, y, tol=0):
+        ''' Matrix equality test with tolerance '''
+        if self.shape == y.shape:
+            return all([abs(self.data[i] - y.data[i]) <= tol for i in range(self.size())])
+        else:
+            return False
 
 
 def fp_eps():

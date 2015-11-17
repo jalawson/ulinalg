@@ -1,6 +1,6 @@
 #Module umatrix, ulinalg
 
-These are small modules for MicroPython (Python3) which provide a class for matrix represention, manipulation and a few linear algebra routines.
+These are small modules for MicroPython (Python3) to provide a class for matrix represention, manipulation and a few linear algebra routines.
 
 The goal is to provide a compact limited implementation matrix module which is functionally compatible with 2-D Numpy arrays.
 
@@ -10,14 +10,15 @@ The goal is to provide a compact limited implementation matrix module which is f
 * __ulinalg.py__ - supporting linear algebra routines (requires ```umatrix``` ).
 * __ulinalg\_tests.py__ - testing file to check most of the features.
 
-Currently supported: (see following sections and Properties, Methods and Functions below for descriptions)
+Currently supported: (see following sections and Properties, Methods and Functions for descriptions)
 
 ####Provided by ```umatrix```
 
 * assignment
 * slicing (the third step argument is not supported)
 * matrix/scaler elementwise arithmatic operations
- * Note __scaler OP matrix__ operations fail under MicroPython as reflected operations are not yet fully supported.
+ * Note: __scaler OP matrix__ operations fail under MicroPython as reflected operations are not yet fully supported.
+Operations need to be arranged in a __matrix OP scaler__ form. See the __Implementation Notes__ section.
 * transpose
 * iteration support
 * sub-matrix assignment
@@ -196,19 +197,38 @@ Iterating over a slice of a matrix will return a list of elements.
 ####Matrix ```+,-,*,\,\\``` Scaler operations
 Matrices used as the LH argument of a scaler operation will work for elementwise operation.  Using a scaler as the RH argument does not work as reflected operations are not yet supported by MicroPython.
 
+Negation of a matrix does work.
+
 For example:
 
 ```
-X+2     # matrix plus element-wise addition works
 2+X     # does not work
+X+2     # matrix plus element-wise addition works
+
+2-X     # does not work
+-X+2    # works
+
+2*X     # does not work
+X*2     # works
 ```
+Scaler / matrix can be accomplished using the ```reciprocal(n=1)``` method.
+
+```
+2.0/X              # does not work
+X.reciprocal()*2.0 # does work (1/x * 2.0)
+```
+
 The reason seems to be that the __MicroPython__ __int__ class __\_\_add\_\___ method (for example) does not raise __NotImplementedError__ and therefore the ```umatrix``` __\_\_radd\_\___ method is not invoked.
 <hr>
 
 ####Matrix equality
 Currently X==Y will return true if X and Y have the same shape and the elements are equal. Float and complex determine equality within ```flt_eps```.
 
-Under Numpy, X==Y does elementwise equality but also provides methods such as all_close(), array_equal() to determine matrix equality.
+In Numpy, X==Y does elementwise equality but also provides methods such as all\_close(), array\_equal() to determine matrix equality.
+Elementwise comaprison does not currently seem to work in MicroPython (the __\_\_eq\_\___ special method will only return a single ```bool```).
+
+```umatrix.isclose(X, Y, tol=0)``` provides a similar function as Numpys ```isclose```.
+
 
 The ```umatrix``` module attempts to determine the supported types and floating point epsilon if float is supported.
 
@@ -216,14 +236,14 @@ The results are held in ```umatrix.stypes``` and ```umatrix.flt_eps``` respectiv
 
 For example __flt\_eps__, __stypes__ under a few different platforms:
 ```
-#    Linux          = 1E-15, [<class 'int'>, <class 'float'>, <class 'complex'>]
-#    Pyboard        = 1E-6 , [<class 'int'>, <class 'float'>, <class 'complex'>]
-#    WiPy           = 1    , [<class 'int'>]
+#    Linux          = 1E-15, [<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>]
+#    Pyboard        = 1E-6 , [<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>]
+#    WiPy           = 1    , [<class 'bool'>, <class 'int'>]
 ```
 Note: ```flt_eps``` is kind of irrelevent when all the work is done on one platform but the ```ulinalg_test``` file uses it to determine matrix equality.
 <hr>
 
-##Properties
+##Properties of umatrix.matrix
 ```
 shape
 ```
@@ -246,7 +266,7 @@ T
 
 <hr>
 
-##Methods
+##Methods of umatrix.matrix
 ```
 copy
 ```
@@ -269,17 +289,25 @@ reshape(m, n)
 > Returns a __copy__ of the matrix with a the shape (m, n)
 
 ```
-isclose(X, Y, tol=0)
-```
-> Returns True if matrices X and Y have the same shape and the elements are whithin ```tol```.
->
-> Useful for use with __float__ and __complex__ matrices.
-
-```
 transpose
 ```
 > Returns a __view__ of the matrix transpose
 
+```
+reciprocal(n=1)
+```
+> Retruns a matrix with elementwise recipricals by default (or n/element). For use in scaler division. See __Implementation Notes__.
+<hr>
+
+##Functions provided by umatrix module
+
+```
+isclose(X, Y, tol=0)
+```
+> Returns True if matrices X and Y have the same shape and the elements are whithin ```tol```.
+>
+> ```tol``` defaults to ```0``` for use with __int__ and cannot be less than ```flt_eps```.
+> Useful for use with __float__ and __complex__ matrices.
 <hr>
 
 ##Functions provided by ulinalg module

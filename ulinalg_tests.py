@@ -225,7 +225,7 @@ def det_inv_test():
                  [0.1666666666666667 , -0.4999999999999999, 1.0                , -0.1666666666666667],
                  [0.4166666666666667 , 0.2500000000000001 , 0.5000000000000001 , -0.4166666666666667]])
     inv_res = matrix_compare(inv, f)
-    return {'determinant' : det_res, 'inverse' : inv_res, 'isclose True' : umatrix.matrix.isclose(inv, f, 0.00001), 'isclose False' : (umatrix.matrix.isclose(inv, f) == False)}
+    return {'determinant' : det_res, 'inverse' : inv_res, 'isclose True' : umatrix.isclose(inv, f, 0.00001), 'isclose False' : (umatrix.isclose(inv, f) == False)}
 
 final_results = {}
 for t in [construct,

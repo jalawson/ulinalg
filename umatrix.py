@@ -80,11 +80,13 @@ class matrix(object):
         return self.m
 
     def __eq__(self, other):
-        d = all([self.data[i] == other.data[i] for i in range(self.size())])
-        return d and (self.shape == other.shape)
+        # this doesn't work in Micropython
+        # d = matrix([self.data[i] == other.data[i] for i in range(len(self.data))], cstride=self.cstride, rstride=self.rstride, dtype=bool)
+        return all([self.data[i] == other.data[i] for i in range(self.size())]) and (self.shape == other.shape)
 
-    def __ne__(self, other):
-        return not self.__eq__(self, other)
+    #def __ne__(self, other):
+        # defaults to not __eq__
+        #return not self.__eq__(other)
 
     def __iter__(self):
         self.cur = 0
@@ -391,13 +393,17 @@ class matrix(object):
         """ Return a view """
         return matrix(self.data, cstride=self.rstride, rstride=self.cstride)
 
-    def isclose(self, y, tol=0):
-        ''' Matrix equality test with tolerance '''
-        if self.shape == y.shape:
-            return all([abs(self.data[i] - y.data[i]) <= tol for i in range(self.size())])
-        else:
-            return False
+    #def isclose(self, y, tol=0):
+    #    ''' Matrix equality test with tolerance '''
+    #    return all([abs(self.data[i] - y.data[i]) <= tol for i in range(self.size())]) and self.shape == y.shape
 
+    def reciprocal(self, n=1):
+        return matrix([n/i for i in self.data], cstride=self.cstride, rstride=self.rstride) 
+
+
+def isclose(x, y, tol=0):
+    ''' Matrix equality test with tolerance '''
+    return all([abs(x.data[i] - y.data[i]) <= tol for i in range(x.size())]) and x.shape == y.shape
 
 def fp_eps():
     ''' Determine floating point resolution '''

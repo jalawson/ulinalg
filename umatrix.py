@@ -33,7 +33,7 @@ flt_eps = 1
 
 class matrix(object):
 
-    def __init__(self, data, cstride=0, rstride=0):
+    def __init__(self, data, cstride=0, rstride=0, dtype=None):
         # data can be of the form
         # x = array(2) -> array(2) acts like a scaler
         # x = array([2]) -> array([2]) vector
@@ -66,9 +66,13 @@ class matrix(object):
             self.cstride = 1
             self.rstride = self.n
         # ensure all elements are of the same type
-        ty = max([stypes.index(type(i)) for i in self.data])
-        self.data = [stypes[ty](i) for i in self.data]
-        self.dtype = stypes[ty]
+        if dtype == None:
+            self.dtype = stypes[max([stypes.index(type(i)) for i in self.data])]
+        else:
+            if not dtype in stypes:
+                raise TypeError('unsupported type', dt)
+            self.dtype = dtype
+        self.data = [self.dtype(i) for i in self.data]
 
     def __len__(self):
         return self.m

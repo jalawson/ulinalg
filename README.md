@@ -45,7 +45,7 @@ umatrix.matrix
 
 Elements can be __int__, __float__ or __complex__ depending on the support provided by the particular
  version of MicroPython. All elements will be converted to the most _advanced_ type found (ie. if there is a __float__ in the data, all elements will be converted to __float__).
-The result is held in ```umatrix.dtype```.
+The result is held in ```umatrix.dtype```. The kwarg ```dtype=``` may also be used to force the type.
 
 A matrix can be constructed using a list of lists representation, where each list member is a row in the matrix.
 ```
@@ -58,11 +58,24 @@ X = umatrix.matrix([0,1,2,3,4,5,6,7,8,9,10,11], cstride=1, rstride=3)
 ```
 
 Both the above will result in:
+
 ```
-X = mat([[0 ,1 ,2 ],
-         [3 ,4 ,5 ],
-         [6 ,7 ,8 ],
-         [9 ,10,11]])
+X = mat([[0 , 1 , 2 ],
+         [3 , 4 , 5 ],
+         [6 , 7 , 8 ],
+         [9 , 10, 11]])
+```
+Using:
+```
+X = umatrix.matrix([0,1,2,3,4,5,6,7,8,9,10,11], cstride=1, rstride=3, dtype=float)
+```
+
+results in:
+```
+X = mat([[0.0 , 1.0 , 2.0 ],
+         [3.0 , 4.0 , 5.0 ],
+         [6.0 , 7.0 , 8.0 ],
+         [9.0 , 10.0, 11.0]])
 ```
 <hr>
 

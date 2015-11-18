@@ -80,13 +80,12 @@ class matrix(object):
         return self.m
 
     def __eq__(self, other):
-        # this doesn't work in Micropython
-        # d = matrix([self.data[i] == other.data[i] for i in range(len(self.data))], cstride=self.cstride, rstride=self.rstride, dtype=bool)
-        return all([self.data[i] == other.data[i] for i in range(self.size())]) and (self.shape == other.shape)
+        # this doesn't work via == in Micropython need to call __eq__ directly
+        return matrix([self.data[i] == other.data[i] for i in range(len(self.data))], cstride=self.cstride, rstride=self.rstride, dtype=bool)
+        #return all([self.data[i] == other.data[i] for i in range(self.size())]) and (self.shape == other.shape)
 
     #def __ne__(self, other):
-        # defaults to not __eq__
-        #return not self.__eq__(other)
+        # defaults to not __eq__(other)
 
     def __iter__(self):
         self.cur = 0

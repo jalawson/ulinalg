@@ -194,6 +194,21 @@ Iterating over a slice of a matrix will return a list of elements.
 * In numpy you can make a single element array, ```numpy.array(2)``` that acts like a scaler.
 * Doesn't support NaN, Inf, -Inf
 
+####Types
+
+The ```umatrix``` module attempts to determine the supported types and floating point epsilon if float is supported.
+
+The results are held in ```umatrix.stypes``` and ```umatrix.flt_eps``` respectively.
+
+For example __flt\_eps__, __stypes__ under a few different platforms:
+```
+#    Linux          = 1E-15, [<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>]
+#    Pyboard        = 1E-6 , [<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>]
+#    WiPy           = 1    , [<class 'bool'>, <class 'int'>]
+```
+Note: ```flt_eps``` is kind of irrelevent when all the work is done on one platform but the ```ulinalg_test``` file uses it to determine matrix equality.
+<hr>
+
 ####Matrix ```+,-,*,\,\\``` Scaler operations
 Matrices used as the LH argument of a scaler operation will work for elementwise operation.  Using a scaler as the RH argument does not work as reflected operations are not yet supported by MicroPython.
 
@@ -222,25 +237,15 @@ The reason seems to be that the __MicroPython__ __int__ class __\_\_add\_\___ me
 <hr>
 
 ####Matrix equality
-Currently X==Y will return true if X and Y have the same shape and the elements are equal. Float and complex determine equality within ```flt_eps```.
+In Numpy ```X == Y``` will return a booalen matrix indicating element equality.
+In MicroPython ```X==Y``` currently doesn't call the ```__eq__``` special method and returns a single boolean.
+To get the same result as Numpy call ```X.__eq__(Y)``` directly.
 
-In Numpy, X==Y does elementwise equality but also provides methods such as all\_close(), array\_equal() to determine matrix equality.
-Elementwise comaprison does not currently seem to work in MicroPython (the __\_\_eq\_\___ special method will only return a single ```bool```).
+The functions ```isclose(X, Y, tol=0)```, ```array_equal(X, Y)``` can also be used.
+Float and complex determine equality within ```flt_eps```.
 
 ```umatrix.isclose(X, Y, tol=0)``` provides a similar function as Numpys ```isclose```.
 
-
-The ```umatrix``` module attempts to determine the supported types and floating point epsilon if float is supported.
-
-The results are held in ```umatrix.stypes``` and ```umatrix.flt_eps``` respectively.
-
-For example __flt\_eps__, __stypes__ under a few different platforms:
-```
-#    Linux          = 1E-15, [<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>]
-#    Pyboard        = 1E-6 , [<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>]
-#    WiPy           = 1    , [<class 'bool'>, <class 'int'>]
-```
-Note: ```flt_eps``` is kind of irrelevent when all the work is done on one platform but the ```ulinalg_test``` file uses it to determine matrix equality.
 <hr>
 
 ##Properties of umatrix.matrix

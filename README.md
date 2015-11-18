@@ -191,7 +191,7 @@ Iterating over a slice of a matrix will return a list of elements.
 * Slices are always a view in numpy not in umatrix
 * Scaler as left hand side arguement for [+,-,*,\,\\] operations are not supported in umatrix (see below) but a matrix as left hand side is.
 * Single row/col slices are 1-D arrays in numpy and  a 1xn or nx1 matrix in umatrix
-* In numpy you can make a single element array, ```numpy.array(2)``` that acts like a scaler.
+* In numpy you can make a 0-d array, ```numpy.array(2)``` a special vector that acts like a scaler.
 * Doesn't support NaN, Inf, -Inf
 
 ####Types
@@ -237,18 +237,18 @@ The reason seems to be that the __MicroPython__ __int__ class __\_\_add\_\___ me
 <hr>
 
 ####Matrix equality
-In Numpy ```X == Y``` will return a booalen matrix indicating element equality.
+In Numpy ```X == Y``` will return a boolean matrix indicating element equality.
 In MicroPython ```X==Y``` currently doesn't call the ```__eq__``` special method and returns a single boolean.
-To get the same result as Numpy call ```X.__eq__(Y)``` directly.
+To get the same result as Numpy a direct call to ```X.__eq__(Y)``` is required.
 
-The functions ```isclose(X, Y, tol=0)```, ```array_equal(X, Y)``` can also be used.
-Float and complex determine equality within ```flt_eps```.
-
-```umatrix.isclose(X, Y, tol=0)``` provides a similar function as Numpys ```isclose```.
+The following functions may also be used:
+* ```umatrix.isclose(X, Y, tol=0)```  provides a similar function as Numpys ```isclose```. Float and complex determine equality within ```flt_eps```.
+* ```umatrix.array_equal(X, Y)```  - same data and shape
+* ```umatrix.array_equiv(X, Y)```  - same data and broadcastable
 
 <hr>
 
-##Properties of umatrix.matrix
+###Properties of umatrix.matrix
 ```
 shape
 ```
@@ -271,7 +271,7 @@ T
 
 <hr>
 
-##Methods of umatrix.matrix
+###Methods of umatrix.matrix
 ```
 copy
 ```
@@ -304,18 +304,17 @@ reciprocal(n=1)
 > Retruns a matrix with elementwise recipricals by default (or n/element). For use in scaler division. See __Implementation Notes__.
 <hr>
 
-##Functions provided by umatrix module
+###Functions provided by umatrix module
 
 ```
 isclose(X, Y, tol=0)
 ```
 > Returns True if matrices X and Y have the same shape and the elements are whithin ```tol```.
 >
-> ```tol``` defaults to ```0``` for use with __int__ and cannot be less than ```flt_eps```.
-> Useful for use with __float__ and __complex__ matrices.
+> ```tol``` defaults to ```0``` for use with ```int``` ; ```flt_eps``` for ```float``` and ```complex```.
 <hr>
 
-##Functions provided by ulinalg module
+###Functions provided by ulinalg module
 ```
 zeros(m, n)
 ```

@@ -84,8 +84,8 @@ class matrix(object):
         return matrix([self.data[i] == other.data[i] for i in range(len(self.data))], cstride=self.cstride, rstride=self.rstride, dtype=bool)
         #return all([self.data[i] == other.data[i] for i in range(self.size())]) and (self.shape == other.shape)
 
-    #def __ne__(self, other):
-        # defaults to not __eq__(other)
+    def __ne__(self, other):
+         return not __eq__(other)
 
     def __iter__(self):
         self.cur = 0
@@ -399,9 +399,10 @@ class matrix(object):
     def reciprocal(self, n=1):
         return matrix([n/i for i in self.data], cstride=self.cstride, rstride=self.rstride) 
 
-
 def isclose(x, y, tol=0):
     ''' Matrix equality test with tolerance '''
+    if (tol == 0) and ((x.dtype in [float,complex]) or (y.dtype in [float, complex])):
+        tol = flt_eps
     return all([abs(x.data[i] - y.data[i]) <= tol for i in range(x.size())]) and x.shape == y.shape
 
 def fp_eps():

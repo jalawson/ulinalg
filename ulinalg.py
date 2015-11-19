@@ -28,6 +28,7 @@ SOFTWARE.
 
 import umatrix
 
+
 def zeros(m, n):
     return umatrix.matrix([[0 for i in range(n)] for j in range(m)])
 
@@ -59,28 +60,28 @@ def det_inv(x):
         # divide each row element by [0] to give a one in the first position
         # (may have to find a row to switch with if first element is 0)
         x = x.copy()
-        inverse = eye(len(x))*1.0
+        inverse = eye(len(x)) * 1.0
         sign = 1
         factors = []
         p = 0
         while p < len(x):
-            d = x[p,  p]
+            d = x[p, p]
             if abs(d) < umatrix.flt_eps:
                 # pivot == 0 need to swap a row
                 # check if swap row also has a zero at the same position
                 np = 1
-                while (p+np) < len(x) and x[p+np,  p] < umatrix.flt_eps:
+                while (p + np) < len(x) and x[p + np, p] < umatrix.flt_eps:
                     np += 1
-                if (p+np) == len(x):
+                if (p + np) == len(x):
                     # singular
-                    return [0,  []]
+                    return [0, []]
                 # swap rows
-                z = x[p+np]
-                x[p+np, :] = x[p]
+                z = x[p + np]
+                x[p + np, :] = x[p]
                 x[p, :] = z
                 # do identity
-                z = inverse[p+np]
-                inverse[p+np, :] = inverse[p]
+                z = inverse[p + np]
+                inverse[p + np, :] = inverse[p]
                 inverse[p, :] = z
                 # change sign of det
                 sign = -sign
@@ -93,29 +94,29 @@ def det_inv(x):
             for n in range(len(x)):
                 inverse[p, n] = inverse[p, n] / d
             # eliminate position in the following rows
-            for i in range(p+1, len(x)):
+            for i in range(p + 1, len(x)):
                 # multiplier is that column entry
                 t = x[i, p]
                 for j in range(p, len(x)):
                     x[i, j] = x[i, j] - (t * x[p, j])
                 for j in range(len(x)):
                     inverse[i, j] = inverse[i, j] - (t * inverse[p, j])
-            p += 1
+            p = p + 1
         s = sign
         for i in factors:
             s = s * i  # determinant
         # travel through the rows eliminating upper diagonal non-zero values
-        for i in range(len(x)-1):
+        for i in range(len(x) - 1):
             # final row should already be all zeros
             # except for the final position
-            for p in range(i+1, len(x)):
+            for p in range(i + 1, len(x)):
                 # multiplier is that column entry
                 t = x[i, p]
-                for j in range(i+1, len(x)):
+                for j in range(i + 1, len(x)):
                     x[i, j] = x[i, j] - (t * x[p, j])
                 for j in range(len(x)):
                     inverse[i, j] = inverse[i, j] - (t * inverse[p, j])
-        return (s,  inverse)
+        return (s, inverse)
 
 
 def pinv(X):
@@ -132,21 +133,21 @@ def dot(X, Y):
         for k in range(X.size(1)):
             for j in range(Y.size(2)):
                 Z.append(sum([X[k, i] * Y[i, j] for i in range(Y.size(1))]))
-        return umatrix.matrix(Z,  cstride=1,  rstride=Y.size(2))
+        return umatrix.matrix(Z, cstride=1, rstride=Y.size(2))
     else:
         raise ValueError('shapes not aligned')
 
 
-def cross(X,  Y):
+def cross(X, Y):
     ''' Cross product '''
-    if (X.n in (2,  3)) and (Y.n in (2,  3)):
+    if (X.n in (2, 3)) and (Y.n in (2, 3)):
         if X.m == Y.m:
             Z = []
-            for k in range(min(X.m,  Y.m)):
-                z = X[k, 0]*Y[k, 1] - X[k, 1]*Y[k, 0]
+            for k in range(min(X.m, Y.m)):
+                z = X[k, 0] * Y[k, 1] - X[k, 1] * Y[k, 0]
                 if (X.n == 3) and (Y.n == 3):
-                    Z.append([X[k, 1]*Y[k, 2] - X[k, 2]*Y[k, 1],
-                              X[k, 2]*Y[k, 0] - X[k, 0]*Y[k, 2],  z])
+                    Z.append([X[k, 1] * Y[k, 2] - X[k, 2] * Y[k, 1],
+                              X[k, 2] * Y[k, 0] - X[k, 0] * Y[k, 2], z])
                 else:
                     Z.append([z])
             return umatrix.matrix(Z)

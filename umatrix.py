@@ -67,7 +67,7 @@ class matrix(object):
             self.cstride = 1
             self.rstride = self.n
         # ensure all elements are of the same type
-        if dtype == None:
+        if dtype is None:
             self.dtype = stypes[max([stypes.index(type(i)) for i in self.data])]
         else:
             if dtype in stypes:
@@ -81,12 +81,13 @@ class matrix(object):
 
     def __eq__(self, other):
         if self.shape == other.shape:
-            return all([self.data[i] == other.data[i] for i in range(self.size())]) and (self.shape == other.shape)
+            res = all([self.data[i] == other.data[i] for i in range(self.size())])
+            return res and (self.shape == other.shape)
         else:
             raise ValueError('shapes not equal')
 
     def __ne__(self, other):
-         return not __eq__(other)
+        return not __eq__(other)
 
     def __iter__(self):
         self.cur = 0
@@ -107,15 +108,15 @@ class matrix(object):
             raise StopIteration
         self.cur = self.cur + 1
         if self.m == 1:
-            return self.data[self.cur-1]
+            return self.data[self.cur - 1]
         else:
-            return self[self.cur-1]
+            return self[self.cur - 1]
 
     def slice_to_offset(self, r0, r1, c0, c1):
         # check values and limit them
-        nd = [self.data[i*self.rstride + j*self.cstride]
+        nd = [self.data[i * self.rstride + j * self.cstride]
               for i in range(r0, r1) for j in range(c0, c1)]
-        return matrix(nd, cstride=1, rstride=(c1-c0))
+        return matrix(nd, cstride=1, rstride=(c1 - c0))
 
     def slice_indices(self, index, axis=0):
         # this section is to get around the missing slice.indices() method
@@ -140,12 +141,12 @@ class matrix(object):
             # slice and slice
             if isinstance(index[0], int):
                 s0 = index[0]
-                p0 = s0+1
+                p0 = s0 + 1
             else:  # row slice
                 s0, p0 = self.slice_indices(index[0], 0)
             if isinstance(index[1], int):
                 s1 = index[1]
-                p1 = s1+1
+                p1 = s1 + 1
             else:  # column slice
                 s1, p1 = self.slice_indices(index[1], 1)
         elif type(index) == list:
@@ -173,12 +174,12 @@ class matrix(object):
         # combinations of int and slice => row and columns take on elements from val
         if isinstance(index[0], int):
             s0 = index[0]
-            p0 = s0+1
+            p0 = s0 + 1
         else:  # slice
             s0, p0 = self.slice_indices(index[0], 0)
         if isinstance(index[1], int):
             s1 = index[1]
-            p1 = s1+1
+            p1 = s1 + 1
         else:  # slice
             s1, p1 = self.slice_indices(index[1], 1)
         if type(val) == matrix:
@@ -192,8 +193,7 @@ class matrix(object):
             k = 0
             for i in range(s0, p0):
                 for j in range(s1, p1):
-                    self.data[i*self.rstride + j*self.cstride] = (
-                              self.dtype(val[k]))
+                    self.data[i * self.rstride + j * self.cstride] = (self.dtype(val[k]))
                     k = (k + 1) % len(val)
 
     # there is also __delitem__
@@ -212,11 +212,11 @@ class matrix(object):
             s = s + '['
             for j in range(self.n):
                 s1 = repr(self.data[r + c])
-                s = s + s1 + ' '*(l-len(s1))
-                if (j < (self.n-1)):
+                s = s + s1 + ' ' * (l - len(s1))
+                if (j < (self.n - 1)):
                     s = s + ', '
                 c = c + self.cstride
-            if (i < (self.m-1)):
+            if (i < (self.m - 1)):
                 s = s + '],\n     '
             else:
                 s = s + ']'
@@ -228,8 +228,8 @@ class matrix(object):
     # __rmul__ for example will not be invoked
 
     def __neg__(self):
-        return matrix([self.data[i]*(-1) for i in range(len(self.data))],
-                      cstride=self.cstride, rstride=self.rstride)
+        ndat =[self.data[i] * (-1) for i in range(len(self.data))]
+        return matrix(ndat, cstride=self.cstride, rstride=self.rstride)
 
     def __do_op__(self, a, b, op):
         if op == '+':
@@ -251,17 +251,17 @@ class matrix(object):
             except ZeroDivisionError:
                 raise ZeroDivisionError('division by zero')
         else:
-            raise NotImplementedError('Unknown operator ',op)
+            raise NotImplementedError('Unknown operator ', op)
 
     def __OP__(self, a, op):
         if type(a) in stypes:
             # matrix - scaler elementwise operation
-            return matrix([self.__do_op__(self.data[i], a, op) for i in range(len(self.data))],
-                           cstride=self.cstride, rstride=self.rstride)
+            ndat = [self.__do_op__(self.data[i], a, op) for i in range(len(self.data))]
+            return matrix(ndat, cstride=self.cstride, rstride=self.rstride)
         elif (type(a) == list):
             # matrix - list elementwise operation
             # hack - convert list to matrix and resubmit then it gets handled below
-            # if self.n = 1 try transpose other wise broadcast error to match numpy
+            # if self.n = 1 try transpose otherwise broadcast error to match numpy
             if (self.n == 1) and (len(a) == self.m):
                 return self.__OP__(matrix([a]).T, op)
             elif len(a) == self.n:
@@ -271,28 +271,28 @@ class matrix(object):
         elif (type(a) == matrix):
             if (self.m == a.m) and (self.n == a.n):
                 # matrix - matrix elementwise operation
-                return matrix([self.__do_op__(self.data[i], a.data[i], op) for i in range(self.size())],
-                              cstride=self.cstride, rstride=self.rstride)
+                ndat = [self.__do_op__(self.data[i], a.data[i], op) for i in range(self.size())]
+                return matrix(ndat, cstride=self.cstride, rstride=self.rstride)
             # generalize the following two elif for > 2 dimensions?
             elif (self.m == a.m):
                 # m==m n!=n => column-wise row operation
                 Y = self.copy()
                 for i in range(self.n):
-                    # this call _OP_ once for each row and __do_op__ for each element - more efficient
+                    # this call _OP_ once for each row and __do_op__ for each element
                     for j in range(self.m):
-                         Y[j,i] = self.__do_op__(Y[j,i], a[j,0], op)
+                        Y[j, i] = self.__do_op__(Y[j, i], a[j, 0], op)
                 return Y
             elif (self.n == a.n):
                 # m!=m n==n => row-wise col operation
                 Y = self.copy()
                 for i in range(self.m):
-                    # this call _OP_ once for each col and __do_op__ for each element - more efficient
+                    # this call _OP_ once for each col and __do_op__ for each element
                     for j in range(self.n):
-                         Y[i,j] = self.__do_op__(Y[i,j], a[0,j], op)
+                        Y[i, j] = self.__do_op__(Y[i, j], a[0, j], op)
                 return Y
             else:
                 raise ValueError('could not be broadcast')
-        raise NotImplementedError('__OP__ matrix + ',type(a))
+        raise NotImplementedError('__OP__ matrix + ', type(a))
 
     def __add__(self, a):
         ''' matrix - scaler elementwise addition'''
@@ -307,7 +307,7 @@ class matrix(object):
         ''' matrix - scaler elementwise subtraction '''
         if type(a) in estypes:
             return self.__add__(-a)
-        raise NotImplementedError('__sub__ matrix -',type(a))
+        raise NotImplementedError('__sub__ matrix -', type(a))
 
     def __rsub__(self, a):
         ''' scaler - matrix elementwise subtraction '''
@@ -358,7 +358,7 @@ class matrix(object):
             1 rows
             2 columns
         """
-        return [self.m*self.n, self.m, self.n][axis]
+        return [self.m * self.n, self.m, self.n][axis]
 
     @property
     def shape(self):
@@ -367,7 +367,7 @@ class matrix(object):
     @shape.setter
     def shape(self, nshape):
         """ check for proper length """
-        if (nshape[0]*nshape[1]) == self.size():
+        if (nshape[0] * nshape[1]) == self.size():
             self.m, self.n = nshape
             self.cstride = 1
             self.rstride = self.n
@@ -394,24 +394,31 @@ class matrix(object):
         return matrix(self.data, cstride=self.rstride, rstride=self.cstride)
 
     def reciprocal(self, n=1):
-        return matrix([n/i for i in self.data], cstride=self.cstride, rstride=self.rstride) 
+        return matrix([n / i for i in self.data], cstride=self.cstride, rstride=self.rstride)
+
 
 def isclose(x, y, tol=0):
     ''' Matrix equality test with tolerance '''
-    if (tol == 0) and ((x.dtype in [float,complex]) or (y.dtype in [float, complex])):
+    if (tol == 0) and ((x.dtype in [float, complex]) or (y.dtype in [float, complex])):
         tol = flt_eps
-    return all([abs(x.data[i] - y.data[i]) <= tol for i in range(x.size())]) and x.shape == y.shape
+    res = all([abs(x.data[i] - y.data[i]) <= tol for i in range(x.size())])
+    return res and (x.shape == y.shape)
+
 
 def matrix_equal(x, y):
     ''' Returns a matrix indicating equal elements '''
     if x.shape == y.shape:
-        return matrix([x.data[i] == y.data[i] for i in range(len(x.data))], cstride=x.cstride, rstride=x.rstride, dtype=bool)
+        data = [x.data[i] == y.data[i] for i in range(len(x.data))]
+        return matrix(data, cstride=x.cstride, rstride=x.rstride, dtype=bool)
     else:
         raise ValueError('shapes not equal')
 
+
 def matrix_equiv(x, y):
     ''' Returns a boolean indicating if X and Y share the same data and are broadcastable'''
-    return all([x.data[i] == y.data[i] for i in range(len(x.data))]) and x.size() == y.size()
+    res = all([x.data[i] == y.data[i] for i in range(len(x.data))])
+    return res and (x.size() == y.size())
+
 
 def fp_eps():
     ''' Determine floating point resolution '''
@@ -426,10 +433,11 @@ def fp_eps():
         i = i + 1
     return i
 
+
 # Determine supported types
 try:
     stypes.append(float)
-    flt_eps = 1./(10**fp_eps())
+    flt_eps = 1. / (10**fp_eps())
 except:
     pass
 try:

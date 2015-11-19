@@ -80,9 +80,10 @@ class matrix(object):
         return self.m
 
     def __eq__(self, other):
-        # this doesn't work via == in Micropython need to call __eq__ directly
-        return matrix([self.data[i] == other.data[i] for i in range(len(self.data))], cstride=self.cstride, rstride=self.rstride, dtype=bool)
-        #return all([self.data[i] == other.data[i] for i in range(self.size())]) and (self.shape == other.shape)
+        if self.shape == other.shape:
+            return all([self.data[i] == other.data[i] for i in range(self.size())]) and (self.shape == other.shape)
+        else:
+            raise ValueError('shapes not equal')
 
     def __ne__(self, other):
          return not __eq__(other)
@@ -392,10 +393,6 @@ class matrix(object):
         """ Return a view """
         return matrix(self.data, cstride=self.rstride, rstride=self.cstride)
 
-    #def isclose(self, y, tol=0):
-    #    ''' Matrix equality test with tolerance '''
-    #    return all([abs(self.data[i] - y.data[i]) <= tol for i in range(self.size())]) and self.shape == y.shape
-
     def reciprocal(self, n=1):
         return matrix([n/i for i in self.data], cstride=self.cstride, rstride=self.rstride) 
 
@@ -404,6 +401,17 @@ def isclose(x, y, tol=0):
     if (tol == 0) and ((x.dtype in [float,complex]) or (y.dtype in [float, complex])):
         tol = flt_eps
     return all([abs(x.data[i] - y.data[i]) <= tol for i in range(x.size())]) and x.shape == y.shape
+
+def matrix_equal(x, y):
+    ''' Returns a matrix indicating equal elements '''
+    if x.shape == y.shape:
+        return matrix([x.data[i] == y.data[i] for i in range(len(x.data))], cstride=x.cstride, rstride=x.rstride, dtype=bool)
+    else:
+        raise ValueError('shapes not equal')
+
+def matrix_equiv(x, y):
+    ''' Returns a boolean indicating if X and Y share the same data and are broadcastable'''
+    return all([x.data[i] == y.data[i] for i in range(len(x.data))]) and x.size() == y.size()
 
 def fp_eps():
     ''' Determine floating point resolution '''

@@ -188,11 +188,11 @@ Iterating over a slice of a matrix will return a list of elements.
 
 ####Differences from Numpy Arrays
 
-* Slices are always a view in numpy not in umatrix
+* Slices are always a view in numpy, in umatrix they are currently not a view
 * Scaler as left hand side arguement for [+,-,*,\,\\] operations are not supported in umatrix (see below) but a matrix as left hand side is.
-* Single row/col slices are 1-D arrays in numpy and  a 1xn or nx1 matrix in umatrix
-* In numpy you can make a 0-d array, ```numpy.array(2)``` a special vector that acts like a scaler.
-* Doesn't support NaN, Inf, -Inf
+* Single row/col slices are 1-D arrays in numpy and  a 1xn (row) or nx1 (column) matrix in umatrix
+* numpy has a 0-d array, ```numpy.array(2)``` a special vector that acts like a scaler.
+* umatrix doesn't support NaN, Inf, -Inf
 
 ####Types
 
@@ -238,12 +238,12 @@ The reason seems to be that the __MicroPython__ __int__ class __\_\_add\_\___ me
 
 ####Matrix equality
 In Numpy ```X == Y``` will return a boolean matrix indicating element equality.
-In MicroPython ```X==Y``` currently doesn't call the ```__eq__``` special method and returns a single boolean.
-To get the same result as Numpy a direct call to ```X.__eq__(Y)``` is required.
+In MicroPython ```X==Y``` returns ```True``` if all elements of X and Y are equal and the they have the same shape.
+
+To get the same result as Numpy a direct call to ```umatrix.matrix_equal(X, Y)``` is required.
 
 The following functions may also be used:
 * ```umatrix.isclose(X, Y, tol=0)```  provides a similar function as Numpys ```isclose```. Float and complex determine equality within ```flt_eps```.
-* ```umatrix.array_equal(X, Y)```  - same data and shape
 * ```umatrix.array_equiv(X, Y)```  - same data and broadcastable
 
 <hr>
@@ -302,6 +302,7 @@ transpose
 reciprocal(n=1)
 ```
 > Retruns a matrix with elementwise recipricals by default (or n/element). For use in scaler division. See __Implementation Notes__.
+
 <hr>
 
 ###Functions provided by umatrix module
@@ -311,7 +312,19 @@ isclose(X, Y, tol=0)
 ```
 > Returns True if matrices X and Y have the same shape and the elements are whithin ```tol```.
 >
-> ```tol``` defaults to ```0``` for use with ```int``` ; ```flt_eps``` for ```float``` and ```complex```.
+> ```tol``` defaults to ```0``` for use with ```int``` and to ```flt_eps``` for ```float``` and ```complex```.
+
+```
+matrix_equal(X, Y)
+```
+> Returns a boolean matrix indicating element equality. X and Y must be the same shape.
+> Similar to Numpys ```==```
+
+```
+matrix_equiv(X, Y)
+```
+> Returns a boolean indicating if X and Y share the same data and are broadcastable
+
 <hr>
 
 ###Functions provided by ulinalg module

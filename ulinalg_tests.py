@@ -8,6 +8,7 @@ import ulinalg
 eps = umatrix.flt_eps
 
 def matrix_compare(X, Y):
+    # checks for equal elements and identical shapes
     return all([(abs(X[i,j] - Y[i,j]) < eps) for j in range(X.size(2)) for i in range(X.size(1))])
 
 def construct():
@@ -29,7 +30,25 @@ def construct():
     x11 = umatrix.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
     # check for shape change copy
     x12 = x11.reshape((3,4))
-    result['shape copy'] = matrix_compare(x12, umatrix.matrix([[0,1,2,4],[5,6,8,9],[10,12,13,14]])) and not (x11 == x12)
+    result['shape copy'] = matrix_compare(x12, umatrix.matrix([[0,1,2,4],[5,6,8,9],[10,12,13,14]])) and (x12.shape != x11.shape)
+
+    return result
+
+def equality():
+
+    result = {}
+
+    x10 = umatrix.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
+    x11 = umatrix.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
+    x12 = umatrix.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,15]])
+    result['x == y and x.__eq__(y)'] = (x10 == x11) and (x10.__eq__(x11))
+    result['umatrix.matrix_equal(x, y)'] = matrix_compare(umatrix.matrix_equal(x10, x11), umatrix.matrix([[True, True, True],[True, True, True],[True, True, True],[True, True, True]]))
+    try:
+        result['umatrix.matrix_equal(x, y)'] = matrix_compare(umatrix.matrix_equal(x10, x12), umatrix.matrix([[True, True, True],[True, True, True],[True, True, True],[True, True, True]])) == False
+    except Exception as e:
+        result['umatrix.matrix_equal(x, y)'] = (False, e)
+    result['umatrix.matrix_equiv(x, y) same shape'] = umatrix.matrix_equiv(x10, x11)
+    result['umatrix.matrix_equiv(x, y) !same shape'] = umatrix.matrix_equiv(x10, x11.reshape((3,4)))
 
     return result
 
@@ -48,17 +67,17 @@ def list_ops():
     except Exception as e:
         result['matrix + list row default'] = (False, e)
     try:
-        result['matrix + list row default broadcast err'] = matrix_compare(X+Zlist, umatrix.matrix([[1,3,5],[5,7,9],[9,11,13],[13,15,17]]))
+        result['matrix + list row default broadcast error'] = matrix_compare(X+Zlist, umatrix.matrix([[1,3,5],[5,7,9],[9,11,13],[13,15,17]]))
     except Exception as e:
-        result['matrix + list row default broadcast err'] = True
+        result['matrix + list row default broadcast error'] = True
     try:
         result['matrix col + list'] = matrix_compare(X[:,1]+Zlist, umatrix.matrix([[2,7,12,17]]).T)
     except Exception as e:
         result['matrix col + list'] = (False, e)
     try:
-        result['matrix col + list broadcast err'] = matrix_compare(X[:,1]+Ylist, umatrix.matrix([[2,7,12,17]]).T)
+        result['matrix col + list broadcast error'] = matrix_compare(X[:,1]+Ylist, umatrix.matrix([[2,7,12,17]]).T)
     except Exception as e:
-        result['matrix col + list broadcast err'] = True
+        result['matrix col + list broadcast error'] = True
     try:
         result['matrix + row matrix'] = matrix_compare(X+Ymatrix, umatrix.matrix([[1,3,5],[5,7,9],[9,11,13],[13,15,17]]))
     except Exception as e:
@@ -68,9 +87,9 @@ def list_ops():
     except Exception as e:
         result['matrix + col matrix'] = (False, e)
     try:
-        result['matrix + col broadcast err'] = matrix_compare(X+Ymatrix.T, umatrix.matrix([[1,3,5],[5,7,9],[9,11,13],[13,15,17]]))
+        result['matrix + col broadcast error'] = matrix_compare(X+Ymatrix.T, umatrix.matrix([[1,3,5],[5,7,9],[9,11,13],[13,15,17]]))
     except Exception as e:
-        result['matrix + col broadcast err'] = True
+        result['matrix + col broadcast error'] = True
 
     return result
 
@@ -225,10 +244,12 @@ def det_inv_test():
                  [0.1666666666666667 , -0.4999999999999999, 1.0                , -0.1666666666666667],
                  [0.4166666666666667 , 0.2500000000000001 , 0.5000000000000001 , -0.4166666666666667]])
     inv_res = matrix_compare(inv, f)
+    f[3,3] = -0.41666668
     return {'determinant' : det_res, 'inverse' : inv_res, 'isclose True' : umatrix.isclose(inv, f, 0.00001), 'isclose False' : (umatrix.isclose(inv, f) == False)}
 
 final_results = {}
 for t in [construct,
+          equality,
           scaler,
           det_inv_test,
           products,
@@ -238,12 +259,12 @@ for t in [construct,
           list_ops
          ]:
     results = t()
-    print('---', t.__name__, '-'*(52-len(t.__name__)))
+    print('---', t.__name__, '-'*(60-len(t.__name__)))
     for k,v in results.items():
         if type(v) == tuple:
-            print('Test : {0:36s} ===> {1} : {2}'.format(k, ['    Fail','Pass'][v[0]], v[1]))
+            print('Test : {0:42s} ===> {1} : {2}'.format(k, ['    Fail','Pass'][v[0]], v[1]))
         else:
-            print('Test : {0:36s} ===> {1}'.format(k, ['    Fail','Pass'][v]))
+            print('Test : {0:42s} ===> {1}'.format(k, ['    Fail','Pass'][v]))
     final_results.update(results)
 
 tests_total = len(final_results)
@@ -253,5 +274,5 @@ for i in final_results.values():
         tests_passed += i[0]
     else:
         tests_passed += i
-print('-'*57)
+print('-'*60)
 print('Total ==> {0:3d} Passed ==> {1:3d} Failed ==> {2:3d}'.format(tests_total, tests_passed, tests_total-tests_passed))

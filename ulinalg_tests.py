@@ -40,11 +40,13 @@ def equality():
 
     x10 = umatrix.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
     x11 = umatrix.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
-    x12 = umatrix.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,15]])
+    x12 = umatrix.matrix([[0,1,3],[4,5,7],[8,9,10],[12,14,15]])
     result['x == y and x.__eq__(y)'] = (x10 == x11) and (x10.__eq__(x11))
-    result['umatrix.matrix_equal(x, y)'] = matrix_compare(umatrix.matrix_equal(x10, x11), umatrix.matrix([[True, True, True],[True, True, True],[True, True, True],[True, True, True]]))
+    result['umatrix.matrix_isclose(x, y) True'] = matrix_compare(umatrix.matrix_isclose(x10, x11), umatrix.matrix([[True, True, True],[True, True, True],[True, True, True],[True, True, True]]))
+    result['umatrix.matrix_isclose(x, y) False'] = matrix_compare(umatrix.matrix_isclose(x10, x12), umatrix.matrix([[True, True, False],[True, True, False],[True, True, True],[True, False, False]]))
     try:
-        result['umatrix.matrix_equal(x, y)'] = matrix_compare(umatrix.matrix_equal(x10, x12), umatrix.matrix([[True, True, True],[True, True, True],[True, True, True],[True, True, True]])) == False
+        print('here 3')
+        result['umatrix.matrix_equal(x, y)'] = matrix_compare(umatrix.matrix_isclose(x10, x12), umatrix.matrix([[True, True, True],[True, True, True],[True, True, True],[True, True, True]])) == False
     except Exception as e:
         result['umatrix.matrix_equal(x, y)'] = (False, e)
     result['umatrix.matrix_equiv(x, y) same shape'] = umatrix.matrix_equiv(x10, x11)
@@ -245,7 +247,7 @@ def det_inv_test():
                  [0.4166666666666667 , 0.2500000000000001 , 0.5000000000000001 , -0.4166666666666667]])
     inv_res = matrix_compare(inv, f)
     f[3,3] = -0.41666668
-    return {'determinant' : det_res, 'inverse' : inv_res, 'isclose True' : umatrix.isclose(inv, f, 0.00001), 'isclose False' : (umatrix.isclose(inv, f) == False)}
+    return {'determinant' : det_res, 'inverse' : inv_res, 'matrix_equal True' : umatrix.matrix_equal(inv, f, 0.00001), 'matrix_equal False' : (umatrix.matrix_equal(inv, f) == False)}
 
 final_results = {}
 for t in [construct,

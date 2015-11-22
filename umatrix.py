@@ -397,27 +397,36 @@ class matrix(object):
         return matrix([n / i for i in self.data], cstride=self.cstride, rstride=self.rstride)
 
 
-def isclose(x, y, tol=0):
-    ''' Matrix equality test with tolerance '''
+def matrix_isclose(x, y, tol=0):
+    ''' Returns a matrix indicating equal elements within tol'''
     if (tol == 0) and ((x.dtype in [float, complex]) or (y.dtype in [float, complex])):
         tol = flt_eps
-    res = all([abs(x.data[i] - y.data[i]) <= tol for i in range(x.size())])
-    return res and (x.shape == y.shape)
+    for i in range(x.size()):
+        try:
+            data = [x.data[i] == y.data[i] for i in range(len(x.data))]
+        except (AttributeError, IndexError):
+            data = [False for i in range(len(x.data))]
+    return matrix(data, cstride=x.cstride, rstride=x.rstride, dtype=bool)
 
 
-def matrix_equal(x, y):
-    ''' Returns a matrix indicating equal elements '''
-    if x.shape == y.shape:
-        data = [x.data[i] == y.data[i] for i in range(len(x.data))]
-        return matrix(data, cstride=x.cstride, rstride=x.rstride, dtype=bool)
-    else:
-        raise ValueError('shapes not equal')
+def matrix_equal(x, y, tol=0):
+    ''' Matrix equality test with tolerance same shape'''
+    res = False
+    if type(y) == matrix:
+        if (tol == 0) and ((x.dtype in [float, complex]) or (y.dtype in [float, complex])):
+            tol = flt_eps
+        if x.shape == y.shape:
+            res = all([abs(x.data[i] - y.data[i]) <= tol for i in range(x.size())])
+    return res
 
 
 def matrix_equiv(x, y):
     ''' Returns a boolean indicating if X and Y share the same data and are broadcastable'''
-    res = all([x.data[i] == y.data[i] for i in range(len(x.data))])
-    return res and (x.size() == y.size())
+    res = False
+    if type(y) == matrix:
+        if x.size() == y.size():
+            res = all([x.data[i] == y.data[i] for i in range(len(x.data))])
+    return res
 
 
 def fp_eps():

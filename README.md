@@ -238,9 +238,6 @@ The reason seems to be that the __MicroPython__ __int__ class __\_\_add\_\___ me
 
 ####Matrix equality
 In MicroPython ```X == Y``` returns ```True``` if all elements of X and Y are equal and the they have the same shape.
-In Numpy ```X == Y``` returns a boolean matrix indicating element equality.
-
-To get the same result as Numpy a direct call to ```umatrix.matrix_equal(X, Y)``` is required.
 
 The following functions are available:
 * ```umatrix.matrix_equal(X, Y)```  - boolean indicating same data and shape.
@@ -248,6 +245,9 @@ The following functions are available:
 * ```umatrix.matrix.isclose(X, Y, tol=0)```  - boolean matrix indicating elementwise equality (within tol).
 
 Float and complex default to determining equality within ```flt_eps```.
+
+In Numpy ```X == Y``` returns a boolean matrix indicating element equality.
+To get a similar result to Numpy, use ```umatrix.matrix_isclose(X, Y)```.
 <hr>
 
 ###Properties of umatrix.matrix

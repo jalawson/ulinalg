@@ -70,7 +70,7 @@ def det_inv(x):
                 # pivot == 0 need to swap a row
                 # check if swap row also has a zero at the same position
                 np = 1
-                while (p + np) < len(x) and x[p + np, p] < umatrix.flt_eps:
+                while (p + np) < len(x) and abs(x[p + np, p]) < umatrix.flt_eps:
                     np += 1
                 if (p + np) == len(x):
                     # singular

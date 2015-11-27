@@ -231,13 +231,28 @@ def iteration():
     return result
 
 def det_inv_test():
-    # det_inv test
-    # det = 24.0
-    # x^-1 = mat([[-0.25              , 0.25               , -0.5               , 0.25               ],
-    #             [0.6666666666666667 , -0.4999999999999999, 0.5000000000000001 , -0.1666666666666667],
-    #             [0.1666666666666667 , -0.4999999999999999, 1.0                , -0.1666666666666667],
-    #             [0.4166666666666667 , 0.2500000000000001 , 0.5000000000000001 , -0.4166666666666667]])
-    test_label = 'det_inv: '
+
+    result = {}
+
+    # first test
+
+    g = umatrix.matrix([[ 0.     ,  0.     ,  0.     ,  0.     ,  0.     ,  1.     ],
+                        [ 0.03125,  0.0625 ,  0.125  ,  0.25   ,  0.5    ,  1.     ],
+                        [ 0.     ,  0.     ,  0.     ,  0.     ,  1.     ,  0.     ],
+                        [ 0.3125 ,  0.5    ,  0.75   ,  1.     ,  1.     ,  0.     ],
+                        [ 0.     ,  0.     ,  0.     ,  2.     ,  0.     ,  0.     ],
+                        [ 2.5    ,  3.     ,  3.     ,  2.     ,  0.     ,  0.     ]])
+    g_inv = umatrix.matrix([[-192. ,  192. ,  -48. ,  -48. ,   -4. ,    4. ],
+                        [ 240. , -240. ,   64. ,   56. ,    6. ,   -4. ],
+                        [ -80. ,   80. ,  -24. ,  -16. ,   -3. ,    1. ],
+                        [   0. ,    0. ,    0. ,    0. ,    0.5,    0. ],
+                        [   0. ,    0. ,    1. ,    0. ,    0. ,    0. ],
+                        [   1. ,    0. ,    0. ,    0. ,    0. ,    0. ]])
+    (det,inv) = ulinalg.det_inv(g)
+    result['determinant 1'] = (abs(det - 0.0078125) < 0.000001)
+    result['inverse 1'] = umatrix.matrix_equal(inv, g_inv, 0.000001)
+
+    # second test
     x = umatrix.matrix([[3.,2.,0.,1.],[4.,0.,1.,2.],[3.,0.,2.,1.],[9.,2.,3.,1.]])
     (det,inv) = ulinalg.det_inv(x)
     det_res = det == 24.0
@@ -247,7 +262,12 @@ def det_inv_test():
                  [0.4166666666666667 , 0.2500000000000001 , 0.5000000000000001 , -0.4166666666666667]])
     inv_res = matrix_compare(inv, f)
     f[3,3] = -0.41666668
-    return {'determinant' : det_res, 'inverse' : inv_res, 'matrix_equal True' : umatrix.matrix_equal(inv, f, 0.00001), 'matrix_equal False' : (umatrix.matrix_equal(inv, f) == False)}
+    result['determinant 2'] = det_res
+    result['inverse 2'] = inv_res
+    result['matrix_equal True'] = umatrix.matrix_equal(inv, f, 0.000001)
+    result['matrix_equal False'] = umatrix.matrix_equal(inv, f) == False
+
+    return result
 
 final_results = {}
 for t in [construct,

@@ -29,16 +29,16 @@ SOFTWARE.
 import umatrix
 
 
-def zeros(m, n):
-    return umatrix.matrix([[0 for i in range(n)] for j in range(m)])
+def zeros(m, n, dtype=float):
+    return umatrix.matrix([[0 for i in range(n)] for j in range(m)], dtype=dtype)
 
 
-def ones(m, n):
-    return umatrix.matrix([[1 for i in range(n)] for j in range(m)])
+def ones(m, n, dtype=float):
+    return zeros(m, n, dtype) + 1
 
 
-def eye(m):
-    Z = zeros(m, m)
+def eye(m, dtype=float):
+    Z = zeros(m, m, dtype=dtype)
     for i in range(m):
         Z[i, i] = 1
     return Z

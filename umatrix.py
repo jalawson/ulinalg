@@ -320,7 +320,7 @@ class matrix(object):
         return self.__OP__(a, '*')
 
     def __rmul__(self, a):
-        ''' scaler * matrix elementwiaw multiplication
+        ''' scaler * matrix elementwise multiplication
             commutative
         '''
         return self.__mul__(a)

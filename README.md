@@ -196,9 +196,11 @@ Iterating over a slice of a matrix will return a list of elements.
 
 ####Types
 
-The ```umatrix``` module attempts to determine the supported types and floating point epsilon if float is supported.
+The ```umatrix``` module attempts to determine the supported types and floating point epsilon if __float__ is supported.
 
 The results are held in ```umatrix.stypes``` and ```umatrix.flt_eps``` respectively.
+
+The variable ```umatrix.ddtype``` holds the default type used by some ```ulinalg``` routines (__float__ if supported) .
 
 For example __flt\_eps__, __stypes__ under a few different platforms:
 ```
@@ -331,17 +333,17 @@ matrix_equiv(X, Y)
 
 ###Functions provided by ulinalg module
 ```
-zeros(m, n)
+zeros(m, n, dtype=umatrix.ddtype)
 ```
 > Returns a m x n matrix filled with zeros.
 
 ```
-ones(m, n)
+ones(m, n, dtype=umatrix.ddtype)
 ```
 > Returns a m x n matrix filled with ones.
 
 ```
-eye(m)
+eye(m, dtype=umatrix.ddtype)
 ```
 > Returns a m x m matrix with the diagonal of ones.
 

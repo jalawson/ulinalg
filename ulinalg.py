@@ -29,15 +29,15 @@ SOFTWARE.
 import umatrix
 
 
-def zeros(m, n, dtype=float):
+def zeros(m, n, dtype=umatrix.ddtype):
     return umatrix.matrix([[0 for i in range(n)] for j in range(m)], dtype=dtype)
 
 
-def ones(m, n, dtype=float):
+def ones(m, n, dtype=umatrix.ddtype):
     return zeros(m, n, dtype) + 1
 
 
-def eye(m, dtype=float):
+def eye(m, dtype=umatrix.ddtype):
     Z = zeros(m, m, dtype=dtype)
     for i in range(m):
         Z[i, i] = 1

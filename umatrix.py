@@ -27,6 +27,7 @@ SOFTWARE.
 '''
 
 stypes = [bool, int]
+ddtype = int
 estypes = []
 flt_eps = 1
 
@@ -446,6 +447,7 @@ def fp_eps():
 # Determine supported types
 try:
     stypes.append(float)
+    ddtype = float
     flt_eps = 1. / (10**fp_eps())
 except:
     pass

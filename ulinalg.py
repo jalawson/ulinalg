@@ -138,8 +138,14 @@ def dot(X, Y):
         raise ValueError('shapes not aligned')
 
 
-def cross(X, Y):
-    ''' Cross product '''
+def cross(X, Y, axis=1):
+    ''' Cross product
+        axis=1 Numpy default
+        axis=0 MATLAB, Octave, SciLab default
+    '''
+    if axis == 0:
+        X = X.T
+        Y = Y.T
     if (X.n in (2, 3)) and (Y.n in (2, 3)):
         if X.m == Y.m:
             Z = []
@@ -150,7 +156,10 @@ def cross(X, Y):
                               X[k, 2] * Y[k, 0] - X[k, 0] * Y[k, 2], z])
                 else:
                     Z.append([z])
-            return umatrix.matrix(Z)
+            if axis == 0:
+                return umatrix.matrix(Z).T
+            else:
+                return umatrix.matrix(Z)
         else:
             raise ValueError('shape mismatch')
     else:

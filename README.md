@@ -370,6 +370,10 @@ dot(X, Y)
 > The dot product operation.
 
 ```
-cross(X, Y)
+cross(X, Y, axis=1)
 ```
-> The cross product operation.
+> The cross product operation for 2x2 and 3x3 matrices.
+
+> axis = 1 (default) is for Numpy compatibility.
+
+> axis = 0 is for MATLAB, Octave, SciLab compatability.

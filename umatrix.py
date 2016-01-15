@@ -74,7 +74,7 @@ class matrix(object):
             if dtype in stypes:
                 self.dtype = dtype
             else:
-                raise TypeError('unsupported type', dt)
+                raise TypeError('unsupported type', dtype)
         self.data = [self.dtype(i) for i in self.data]
 
     def __len__(self):

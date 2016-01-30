@@ -274,7 +274,7 @@ class matrix(object):
                 # matrix - matrix elementwise operation
                 # use matrix indices to handle views
                 ndat = [self.__do_op__(self[i, j], a[i, j], op) for i in range(self.m) for j in range(self.n)]
-                return matrix(ndat, cstride=self.cstride, rstride=self.rstride)
+                return matrix(ndat, cstride=1, rstride=self.n)
             # generalize the following two elif for > 2 dimensions?
             elif (self.m == a.m):
                 # m==m n!=n => column-wise row operation

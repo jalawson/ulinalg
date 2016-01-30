@@ -68,6 +68,10 @@ def element_wise():
         result['matrix - matrix view'] = matrix_compare(X-X.T, umatrix.matrix([[0,-3,-6],[3,0,-3],[6,3,0]]))
     except Exception as e:
         result['matrix + list row default'] = (False, e)
+    try:
+        result['matrix view - matrix'] = matrix_compare(X.T-X, umatrix.matrix([[0,-3,-6],[3,0,-3],[6,3,0]]).T)
+    except Exception as e:
+        result['matrix + list row default'] = (False, e)
 
     return result
 

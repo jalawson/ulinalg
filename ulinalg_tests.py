@@ -54,6 +54,27 @@ def equality():
 
     return result
 
+def element_wise():
+
+    result = {}
+
+    X = umatrix.matrix([[0,1,2],[4,5,6],[8,9,10]])
+
+    try:
+        result['matrix - matrix'] = matrix_compare(X-X, umatrix.matrix([[0,0,0],[0,0,0],[0,0,0]]))
+    except Exception as e:
+        result['matrix + list row default'] = (False, e)
+    try:
+        result['matrix - matrix view'] = matrix_compare(X-X.T, umatrix.matrix([[0,-3,-6],[3,0,-3],[6,3,0]]))
+    except Exception as e:
+        result['matrix + list row default'] = (False, e)
+    try:
+        result['matrix view - matrix'] = matrix_compare(X.T-X, umatrix.matrix([[0,-3,-6],[3,0,-3],[6,3,0]]).T)
+    except Exception as e:
+        result['matrix + list row default'] = (False, e)
+
+    return result
+
 def list_ops():
 
     result = {}
@@ -278,7 +299,8 @@ for t in [construct,
           assignment,
           slicing,
           iteration,
-          list_ops
+          list_ops,
+          element_wise
          ]:
     results = t()
     print('---', t.__name__, '-'*(60-len(t.__name__)))

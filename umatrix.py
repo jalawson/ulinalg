@@ -272,8 +272,9 @@ class matrix(object):
         elif (type(a) == matrix):
             if (self.m == a.m) and (self.n == a.n):
                 # matrix - matrix elementwise operation
-                ndat = [self.__do_op__(self.data[i], a.data[i], op) for i in range(self.size())]
-                return matrix(ndat, cstride=self.cstride, rstride=self.rstride)
+                # use matrix indices to handle views
+                ndat = [self.__do_op__(self[i, j], a[i, j], op) for i in range(self.m) for j in range(self.n)]
+                return matrix(ndat, cstride=1, rstride=self.n)
             # generalize the following two elif for > 2 dimensions?
             elif (self.m == a.m):
                 # m==m n!=n => column-wise row operation

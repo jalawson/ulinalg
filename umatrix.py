@@ -395,9 +395,9 @@ class matrix(object):
         """ Return a view """
         X = matrix(self.data, cstride=self.rstride, rstride=self.cstride)
         if self.cstride == self.rstride:
+            # handle column vector
             X.shape = (self.n, self.m)
         return X
-        #return matrix(self.data, cstride=self.rstride, rstride=self.cstride)
 
     def reciprocal(self, n=1):
         return matrix([n / i for i in self.data], cstride=self.cstride, rstride=self.rstride)

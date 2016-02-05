@@ -20,6 +20,7 @@ def construct():
 
     result['square test 1'] = x10.is_square
     result['square test 2'] = not x11.is_square
+    result['transpose column vector'] = matrix_compare(umatrix.matrix([1,2,3,4], cstride=1, rstride=1).T, umatrix.matrix([[1,2,3,4]]))
     result['transpose test square'] = matrix_compare(x10.transpose(), umatrix.matrix([[0, 4, 8, 12],[1, 5, 9, 13],[2, 6, 10, 14],[3, 7, 11, 15]]))
     result['transpose property'] = matrix_compare(x10.T, umatrix.matrix([[0, 4, 8, 12],[1, 5, 9, 13],[2, 6, 10, 14],[3, 7, 11, 15]]))
     # check for shape change view
@@ -45,7 +46,6 @@ def equality():
     result['umatrix.matrix_isclose(x, y) True'] = matrix_compare(umatrix.matrix_isclose(x10, x11), umatrix.matrix([[True, True, True],[True, True, True],[True, True, True],[True, True, True]]))
     result['umatrix.matrix_isclose(x, y) False'] = matrix_compare(umatrix.matrix_isclose(x10, x12), umatrix.matrix([[True, True, False],[True, True, False],[True, True, True],[True, False, False]]))
     try:
-        print('here 3')
         result['umatrix.matrix_equal(x, y)'] = matrix_compare(umatrix.matrix_isclose(x10, x12), umatrix.matrix([[True, True, True],[True, True, True],[True, True, True],[True, True, True]])) == False
     except Exception as e:
         result['umatrix.matrix_equal(x, y)'] = (False, e)

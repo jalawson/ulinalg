@@ -409,7 +409,7 @@ def matrix_isclose(x, y, tol=0):
         tol = flt_eps
     for i in range(x.size()):
         try:
-            data = [x.data[i] == y.data[i] for i in range(len(x.data))]
+            data = [abs(x.data[i] - y.data[i]) <= tol for i in range(len(x.data))]
         except (AttributeError, IndexError):
             data = [False for i in range(len(x.data))]
     return matrix(data, cstride=x.cstride, rstride=x.rstride, dtype=bool)

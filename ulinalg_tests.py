@@ -39,18 +39,22 @@ def equality():
 
     result = {}
 
-    x10 = umatrix.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
-    x11 = umatrix.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
-    x12 = umatrix.matrix([[0,1,3],[4,5,7],[8,9,10],[12,14,15]])
+    x10 = umatrix.matrix([[0.03,1.2,2.45],[4.5,5.45,6.98],[8,9.0001,10.2],[12.123,13.45,14.0]])
+    x11 = umatrix.matrix([[0.03,1.2,2.45],[4.5,5.45,6.98],[8,9.0001,10.2],[12.123,13.45,14.0]])
+    x12 = umatrix.matrix([[0.03,1.2,2.451],[4.5,5.45,6.98],[9,9.0002,10.2],[12.123,13.450001,14.0]])
+    x13 = umatrix.matrix([[0.03,1.2,2.451],[4.5,5.45,6.98],[9,9.0003,10.2],[12.123,13.450001,14.0]])
+
     result['x == y and x.__eq__(y)'] = (x10 == x11) and (x10.__eq__(x11))
     result['umatrix.matrix_isclose(x, y) True'] = matrix_compare(umatrix.matrix_isclose(x10, x11), umatrix.matrix([[True, True, True],[True, True, True],[True, True, True],[True, True, True]]))
-    result['umatrix.matrix_isclose(x, y) False'] = matrix_compare(umatrix.matrix_isclose(x10, x12), umatrix.matrix([[True, True, False],[True, True, False],[True, True, True],[True, False, False]]))
+    result['umatrix.matrix_isclose(x, y) False'] = matrix_compare(umatrix.matrix_isclose(x10, x12), umatrix.matrix([[True, True, False],[True, True, True],[False, False, True],[True, False, True]]))
+    result['umatrix.matrix_isclose(x, y, tol) False tol'] = matrix_compare(umatrix.matrix_isclose(x12, x13, tol=0.0001), umatrix.matrix([[True, True, True],[True, True, True],[True, True, True],[True, True, True]]))
+    result['umatrix.matrix_isclose(x, y, tol) True tol'] = matrix_compare(umatrix.matrix_isclose(x12, x13, tol=0.00001), umatrix.matrix([[True, True, True],[True, True, True],[True, False, True],[True, True, True]]))
     try:
-        result['umatrix.matrix_equal(x, y)'] = matrix_compare(umatrix.matrix_isclose(x10, x12), umatrix.matrix([[True, True, True],[True, True, True],[True, True, True],[True, True, True]])) == False
+        result['umatrix.matrix_equal(x, y)'] = umatrix.matrix_equal(x10, x12) == False
     except Exception as e:
         result['umatrix.matrix_equal(x, y)'] = (False, e)
     result['umatrix.matrix_equiv(x, y) same shape'] = umatrix.matrix_equiv(x10, x11)
-    result['umatrix.matrix_equiv(x, y) !same shape'] = umatrix.matrix_equiv(x10, x11.reshape((3,4)))
+    result['umatrix.matrix_equiv(x, y.reshape) shape'] = umatrix.matrix_equiv(x10, x11.reshape((3,4)))
 
     return result
 
@@ -306,9 +310,9 @@ for t in [construct,
     print('---', t.__name__, '-'*(60-len(t.__name__)))
     for k,v in results.items():
         if type(v) == tuple:
-            print('Test : {0:42s} ===> {1} : {2}'.format(k, ['    Fail','Pass'][v[0]], v[1]))
+            print('Test : {0:44s} ===> {1} : {2}'.format(k, ['    Fail','Pass'][v[0]], v[1]))
         else:
-            print('Test : {0:42s} ===> {1}'.format(k, ['    Fail','Pass'][v]))
+            print('Test : {0:44s} ===> {1}'.format(k, ['    Fail','Pass'][v]))
     final_results.update(results)
 
 tests_total = len(final_results)

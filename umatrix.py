@@ -460,8 +460,8 @@ def fp_eps():
 try:
     stypes.append(float)
     ddtype = float
-    flt_eps = 2 * 1.19E-7   # single precision IEEE 2**-23  double 2.22E-16 == 2**-52
-    #flt_eps = fp_eps1()
+    #flt_eps = 2 * 1.19E-7   # single precision IEEE 2**-23  double 2.22E-16 == 2**-52
+    flt_eps = fp_eps1()
     #flt_eps = 1.E-6
     #flt_eps = 1. / (10**fp_eps())
 except:

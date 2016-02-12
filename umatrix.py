@@ -436,6 +436,12 @@ def matrix_equiv(x, y):
 
 
 def fp_eps():
+    e = 1
+    while 1 + e > 1:
+        e = e / 2
+    return 2 * e
+
+def fp_eps1():
     ''' Determine floating point resolution '''
     i = 0
     x = '1.0'
@@ -453,7 +459,9 @@ def fp_eps():
 try:
     stypes.append(float)
     ddtype = float
-    flt_eps = 1. / (10**fp_eps())
+    flt_eps = 1.19E-7   # single precision IEEE 2**-23  double 2.22E-16 == 2**-52
+    #flt_eps = fp_eps()
+    #flt_eps = 1. / (10**fp_eps())
 except:
     pass
 try:

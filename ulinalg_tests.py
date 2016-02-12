@@ -41,12 +41,18 @@ def equality():
 
     x10 = umatrix.matrix([[0.03,1.2,2.45],[4.5,5.45,6.98],[8,9.0001,10.2],[12.123,13.45,14.0]])
     x11 = umatrix.matrix([[0.03,1.2,2.45],[4.5,5.45,6.98],[8,9.0001,10.2],[12.123,13.45,14.0]])
-    x12 = umatrix.matrix([[0.03,1.2,2.451],[4.5,5.45,6.98],[9,9.0002,10.2],[12.123,13.450001,14.0]])
+    x12 = umatrix.matrix([[0.03,1.2,2.451],[4.5,5.45,6.98],[9,9.0002,10.2],[12.123,13.45+eps,14.0]])
     x13 = umatrix.matrix([[0.03,1.2,2.451],[4.5,5.45,6.98],[9,9.0003,10.2],[12.123,13.450001,14.0]])
 
     result['x == y and x.__eq__(y)'] = (x10 == x11) and (x10.__eq__(x11))
     result['umatrix.matrix_isclose(x, y) True'] = matrix_compare(umatrix.matrix_isclose(x10, x11), umatrix.matrix([[True, True, True],[True, True, True],[True, True, True],[True, True, True]]))
-    result['umatrix.matrix_isclose(x, y) False'] = matrix_compare(umatrix.matrix_isclose(x10, x12), umatrix.matrix([[True, True, False],[True, True, True],[False, False, True],[True, False, True]]))
+    result['umatrix.matrix_isclose(x, y) False'] = matrix_compare(umatrix.matrix_isclose(x10, x12),
+                                                                  umatrix.matrix([[True, True, False],
+                                                                                  [True, True, True],
+                                                                                  [False, False, True],
+                                                                                  [True, False, True]
+                                                                                 ])
+                                                                 )
     result['umatrix.matrix_isclose(x, y, tol) False tol'] = matrix_compare(umatrix.matrix_isclose(x12, x13, tol=0.0001), umatrix.matrix([[True, True, True],[True, True, True],[True, True, True],[True, True, True]]))
     result['umatrix.matrix_isclose(x, y, tol) True tol'] = matrix_compare(umatrix.matrix_isclose(x12, x13, tol=0.00001), umatrix.matrix([[True, True, True],[True, True, True],[True, False, True],[True, True, True]]))
     try:
@@ -286,10 +292,10 @@ def det_inv_test():
                  [0.1666666666666667 , -0.4999999999999999, 1.0                , -0.1666666666666667],
                  [0.4166666666666667 , 0.2500000000000001 , 0.5000000000000001 , -0.4166666666666667]])
     inv_res = matrix_compare(inv, f)
-    f[3,3] = -0.41666668
+    f[3,3] = -0.416668
     result['determinant 2'] = det_res
     result['inverse 2'] = inv_res
-    result['matrix_equal True'] = umatrix.matrix_equal(inv, f, 0.000001)
+    result['matrix_equal True'] = umatrix.matrix_equal(inv, f, tol=0.0001)
     result['matrix_equal False'] = umatrix.matrix_equal(inv, f) == False
 
     return result

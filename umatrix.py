@@ -26,6 +26,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
 
+import sys
+
 stypes = [bool, int]
 ddtype = int
 estypes = []
@@ -405,8 +407,6 @@ class matrix(object):
 
 def matrix_isclose(x, y, tol=0):
     ''' Returns a matrix indicating equal elements within tol'''
-    if (tol == 0) and ((x.dtype in [float, complex]) or (y.dtype in [float, complex])):
-        tol = flt_eps
     for i in range(x.size()):
         try:
             data = [abs(x.data[i] - y.data[i]) <= tol for i in range(len(x.data))]
@@ -419,8 +419,6 @@ def matrix_equal(x, y, tol=0):
     ''' Matrix equality test with tolerance same shape'''
     res = False
     if type(y) == matrix:
-        if (tol == 0) and ((x.dtype in [float, complex]) or (y.dtype in [float, complex])):
-            tol = flt_eps
         if x.shape == y.shape:
             res = all([abs(x.data[i] - y.data[i]) <= tol for i in range(x.size())])
     return res
@@ -435,14 +433,14 @@ def matrix_equiv(x, y):
     return res
 
 
-def fp_eps1():
-    # approximation
+def fp_eps():
+    ''' Determine floating point resolution '''
     e = 1
     while 1 + e > 1:
         e = e / 2
     return 2 * e
 
-def fp_eps():
+def fp_eps_1():
     ''' Determine floating point resolution '''
     i = 0
     x = '1.0'
@@ -456,14 +454,17 @@ def fp_eps():
     return i
 
 
+print(sys.implementation, sys.platform)
+if sys.implementation.name == 'micropython' and sys.platform == 'linux':
+    # force this as there seems micropython limitations but
+    # some operations are done using the C library with a smaller epsilon
+    flt_eps = 1.19E-7   # single precision IEEE 2**-23  double 2.22E-16 == 2**-52
+else:
+    flt_eps = fp_eps()
 # Determine supported types
 try:
     stypes.append(float)
     ddtype = float
-    #flt_eps = 2 * 1.19E-7   # single precision IEEE 2**-23  double 2.22E-16 == 2**-52
-    flt_eps = fp_eps1()
-    #flt_eps = 1.E-6
-    #flt_eps = 1. / (10**fp_eps())
 except:
     pass
 try:

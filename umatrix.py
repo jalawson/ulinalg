@@ -405,11 +405,11 @@ class matrix(object):
         return matrix([n / i for i in self.data], cstride=self.cstride, rstride=self.rstride)
 
 
-def matrix_isclose(x, y, tol=0):
+def matrix_isclose(x, y, rtol=1E-05, atol=flt_eps):
     ''' Returns a matrix indicating equal elements within tol'''
     for i in range(x.size()):
         try:
-            data = [abs(x.data[i] - y.data[i]) <= tol for i in range(len(x.data))]
+            data = [abs(x.data[i] - y.data[i]) <= atol+rtol*abs(y.data[i]) for i in range(len(x.data))]
         except (AttributeError, IndexError):
             data = [False for i in range(len(x.data))]
     return matrix(data, cstride=x.cstride, rstride=x.rstride, dtype=bool)
@@ -440,24 +440,9 @@ def fp_eps():
         e = e / 2
     return 2 * e
 
-def fp_eps_1():
-    ''' Determine floating point resolution '''
-    i = 0
-    x = '1.0'
-    y = x
-    z = float(x)
-    while y == str(z):
-        x = str(x) + '1'
-        z = float(x)
-        y = str(x)
-        i = i + 1
-    return i
-
-
-print(sys.implementation, sys.platform)
 if sys.implementation.name == 'micropython' and sys.platform == 'linux':
-    # force this as there seems micropython limitations but
-    # some operations are done using the C library with a smaller epsilon
+    # force this as there seems to be some interaction with
+    # some operations done using the C library with a smaller epsilon (doubles)
     flt_eps = 1.19E-7   # single precision IEEE 2**-23  double 2.22E-16 == 2**-52
 else:
     flt_eps = fp_eps()

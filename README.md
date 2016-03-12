@@ -1,8 +1,12 @@
 #Module umatrix, ulinalg
 
-These are small modules for MicroPython (Python3) to provide a class for matrix represention, manipulation and a few linear algebra routines.
+These are intended to be relatively small modules for use with MicroPython (Python3) which provide a minimal matrix class for representation, manipulation and a few linear algebra routines.
 
-The goal is to provide a compact limited implementation matrix module which is functionally compatible with 2-D Numpy arrays.
+The matrix module is designed to offer close functional compatiblity with 2-D Numpy arrays.
+
+These routines are not designed to be particulary fast.
+
+(eg. 3x3 matrix inversion takes about 350ms on a PyBoard.)
 
 ####Files:
 
@@ -204,11 +208,14 @@ The variable ```umatrix.ddtype``` holds the default type used by some ```ulinalg
 
 For example __flt\_eps__, __stypes__ under a few different platforms:
 ```
-#    Linux          = 1E-15, [<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>]
-#    Pyboard        = 1E-6 , [<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>]
-#    WiPy           = 1    , [<class 'bool'>, <class 'int'>]
+#    Pyboard         = 1.19E-7 , [<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>]
+#    WiPy            = 1       , [<class 'bool'>, <class 'int'>]
+#    Linux (uPy)     = 1.19E-7 , [<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>]
+#    Linux (CPython) = 2.22E-16, [<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>]
 ```
-Note: ```flt_eps``` is kind of irrelevent when all the work is done on one platform but the ```ulinalg_test``` file uses it to determine matrix equality.
+Notes:
+* uPy under Linux forces ```flt_eps = 1.19E-7``` since it appears that the underlying math fuctions use doubles but uPy operates with single precision.
+* ```flt_eps``` is kind of irrelevent when all the work is done on one platform but the ```ulinalg_test``` file uses it to determine matrix equality.
 <hr>
 
 ####Matrix ```+,-,*,\,\\``` Scaler operations
@@ -244,7 +251,7 @@ In MicroPython ```X == Y``` returns ```True``` if all elements of X and Y are eq
 The following functions are available:
 * ```umatrix.matrix_equal(X, Y)```  - boolean indicating same data and shape.
 * ```umatrix.matrix_equv(X, Y, tol=0)```  - boolean indication same data (within tol) and broadcastable.
-* ```umatrix.matrix.isclose(X, Y, tol=0)```  - boolean matrix indicating elementwise equality (within tol).
+* ```umatrix.matrix.isclose(X, Y, rtol=1.0E-5, atol=flt_eps)```  - boolean matrix indicating elementwise equality (within tol).
 
 Float and complex default to determining equality within ```flt_eps```.
 
@@ -312,14 +319,22 @@ reciprocal(n=1)
 ###Functions provided by umatrix module
 
 ```
-isclose(X, Y, tol=0)
+eps(a=1)
 ```
-> Returns True if matrices X and Y have the same shape and the elements are whithin ```tol```.
->
-> ```tol``` defaults to ```0``` for use with ```int``` and to ```flt_eps``` for ```float``` and ```complex```.
+> Returns the closest floating point number within machine tolerance considered to be different from 'a'.
+
+> Ref. numpy.spacing(), MATLAB/Octave eps() functions 
 
 ```
-matrix_equal(X, Y)
+isclose(X, Y, rtol=1.0E-5, atol=flt_eps)
+```
+> Returns True if matrices X and Y have the same shape and the elements are whithin ```tol```.
+> ```tol``` defaults to ```umatrix.flt_eps``` for use with ```int``` and to ```flt_eps``` for ```float``` and ```complex```.
+
+> Ref. numpy.isclose()
+
+```
+matrix_equal(X, Y, tol=0)
 ```
 > Returns a boolean matrix indicating element equality. X and Y must be the same shape.
 > Similar to Numpys ```==```

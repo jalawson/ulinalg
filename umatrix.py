@@ -26,6 +26,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
 
+import sys
+
 stypes = [bool, int]
 ddtype = int
 estypes = []
@@ -403,13 +405,11 @@ class matrix(object):
         return matrix([n / i for i in self.data], cstride=self.cstride, rstride=self.rstride)
 
 
-def matrix_isclose(x, y, tol=0):
+def matrix_isclose(x, y, rtol=1E-05, atol=flt_eps):
     ''' Returns a matrix indicating equal elements within tol'''
-    if (tol == 0) and ((x.dtype in [float, complex]) or (y.dtype in [float, complex])):
-        tol = flt_eps
     for i in range(x.size()):
         try:
-            data = [x.data[i] == y.data[i] for i in range(len(x.data))]
+            data = [abs(x.data[i] - y.data[i]) <= atol+rtol*abs(y.data[i]) for i in range(len(x.data))]
         except (AttributeError, IndexError):
             data = [False for i in range(len(x.data))]
     return matrix(data, cstride=x.cstride, rstride=x.rstride, dtype=bool)
@@ -419,8 +419,6 @@ def matrix_equal(x, y, tol=0):
     ''' Matrix equality test with tolerance same shape'''
     res = False
     if type(y) == matrix:
-        if (tol == 0) and ((x.dtype in [float, complex]) or (y.dtype in [float, complex])):
-            tol = flt_eps
         if x.shape == y.shape:
             res = all([abs(x.data[i] - y.data[i]) <= tol for i in range(x.size())])
     return res
@@ -434,26 +432,30 @@ def matrix_equiv(x, y):
             res = all([x.data[i] == y.data[i] for i in range(len(x.data))])
     return res
 
+def eps(x = 0):
+    # ref. numpy.spacing(), Octave/MATLAB eps() function
+    if x:
+        return 2**(math.floor(math.log(abs(x))/math.log(2)))*umatrix.flt_eps
+    else:
+        return umatrix.flt_eps
 
 def fp_eps():
     ''' Determine floating point resolution '''
-    i = 0
-    x = '1.0'
-    y = x
-    z = float(x)
-    while y == str(z):
-        x = str(x) + '1'
-        z = float(x)
-        y = str(x)
-        i = i + 1
-    return i
+    e = 1
+    while 1 + e > 1:
+        e = e / 2
+    return 2 * e
 
-
+if sys.implementation.name == 'micropython' and sys.platform == 'linux':
+    # force this as there seems to be some interaction with
+    # some operations done using the C library with a smaller epsilon (doubles)
+    flt_eps = 1.19E-7   # single precision IEEE 2**-23  double 2.22E-16 == 2**-52
+else:
+    flt_eps = fp_eps()
 # Determine supported types
 try:
     stypes.append(float)
     ddtype = float
-    flt_eps = 1. / (10**fp_eps())
 except:
     pass
 try:

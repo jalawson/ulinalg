@@ -5,11 +5,12 @@ import umatrix
 import ulinalg
 
 # ulinalg tries to determine the machine epsilon
+# operations resulting in irrational numbers seem to require a tolerance of at least 2*eps
 eps = umatrix.flt_eps
 
-def matrix_compare(X, Y):
+def matrix_compare(X, Y, tol=0):
     # checks for equal elements and identical shapes
-    return all([(abs(X[i,j] - Y[i,j]) < eps) for j in range(X.size(2)) for i in range(X.size(1))])
+    return all([not(abs(X[i,j] - Y[i,j]) > tol) for j in range(X.size(2)) for i in range(X.size(1))])
 
 def construct():
 
@@ -39,18 +40,22 @@ def equality():
 
     result = {}
 
-    x10 = umatrix.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
-    x11 = umatrix.matrix([[0,1,2],[4,5,6],[8,9,10],[12,13,14]])
-    x12 = umatrix.matrix([[0,1,3],[4,5,7],[8,9,10],[12,14,15]])
+    x10 = umatrix.matrix([[0.03,1.2,2.45],[4.5,5.45,6.98],[8,9.0001,10.2],[12.123,13.45,14.0]])
+    x11 = umatrix.matrix([[0.03,1.2,2.45],[4.5,5.45,6.98],[8,9.0001,10.2],[12.123,13.45,14.0]])
+    x12 = umatrix.matrix([[0.03,1.2,2.451],[4.5,5.45,6.98],[9,9.0002,10.2],[12.123,13.45+eps,14.0]])
+    x13 = umatrix.matrix([[0.03,1.2,2.451],[4.5,5.45,6.98],[9,9.0003,10.2],[12.123,13.450001,14.0]])
+
     result['x == y and x.__eq__(y)'] = (x10 == x11) and (x10.__eq__(x11))
-    result['umatrix.matrix_isclose(x, y) True'] = matrix_compare(umatrix.matrix_isclose(x10, x11), umatrix.matrix([[True, True, True],[True, True, True],[True, True, True],[True, True, True]]))
-    result['umatrix.matrix_isclose(x, y) False'] = matrix_compare(umatrix.matrix_isclose(x10, x12), umatrix.matrix([[True, True, False],[True, True, False],[True, True, True],[True, False, False]]))
+    result['umatrix.matrix_isclose(x, y) True'] = matrix_compare(x10, x11)
+    result['umatrix.matrix_isclose(x, y) False'] = matrix_compare(x10, x12) == False
+    result['umatrix.matrix_isclose(x, y, tol) False tol'] = matrix_compare(x12, x13, tol=eps/2) == False
+    result['umatrix.matrix_isclose(x, y, tol) True tol'] = matrix_compare(x12, x13, tol=0.001)
     try:
-        result['umatrix.matrix_equal(x, y)'] = matrix_compare(umatrix.matrix_isclose(x10, x12), umatrix.matrix([[True, True, True],[True, True, True],[True, True, True],[True, True, True]])) == False
+        result['umatrix.matrix_equal(x, y)'] = umatrix.matrix_equal(x10, x12) == False
     except Exception as e:
         result['umatrix.matrix_equal(x, y)'] = (False, e)
     result['umatrix.matrix_equiv(x, y) same shape'] = umatrix.matrix_equiv(x10, x11)
-    result['umatrix.matrix_equiv(x, y) !same shape'] = umatrix.matrix_equiv(x10, x11.reshape((3,4)))
+    result['umatrix.matrix_equiv(x, y.reshape) shape'] = umatrix.matrix_equiv(x10, x11.reshape((3,4)))
 
     return result
 
@@ -135,9 +140,12 @@ def scaler():
     except TypeError:
         result['scaler - matrix'] = (False, 'TypeError')
     result['matrix + scaler'] = matrix_compare(x10+2.1, umatrix.matrix([[2.1 , 3.1 , 4.1 , 5.1 ],[6.1 , 7.1 , 8.1 , 9.1 ],[10.1, 11.1, 12.1, 13.1],[14.1, 15.1, 16.1, 17.1]]))
-    result['matrix - scaler'] = matrix_compare(x10-1.4, umatrix.matrix([[-1.4, -0.3999999999999999, 0.6000000000000001 , 1.6],[2.6, 3.6, 4.6, 5.6],[6.6, 7.6, 8.6, 9.6],[10.6, 11.6, 12.6, 13.6]]))
+    result['matrix - scaler'] = matrix_compare(x10-1.4, umatrix.matrix([[-1.4, -0.3999999999999999, 0.6000000000000001 , 1.6],[2.6, 3.6, 4.6, 5.6],[6.6, 7.6, 8.6, 9.6],[10.6, 11.6, 12.6, 13.6]]), tol=eps)
     result['matrix * scaler'] = matrix_compare(x10*3, umatrix.matrix([[0, 3, 6, 9],[12, 15, 18, 21],[24, 27, 30, 33],[36, 39, 42, 45]]))
-    result['matrix / scaler'] = matrix_compare(x10/3, umatrix.matrix([[0.0, 0.3333333333333333, 0.6666666666666666, 1.0],[1.333333333333333 , 1.666666666666667 , 2.0, 2.333333333333333],[2.666666666666667 , 3.0, 3.333333333333333 , 3.666666666666667],[4.0, 4.333333333333333 , 4.666666666666667 , 5.0]]))
+    result['matrix / scaler'] = matrix_compare(x10/3, umatrix.matrix([[0.0, 0.3333333333333333, 0.6666666666666667, 1.0],
+                                                                      [1.3333333333333333 , 1.6666666666666667 , 2.0, 2.3333333333333333 ],
+                                                                      [2.66666666666666667 , 3.0, 3.3333333333333333 , 3.6666666666666667 ],
+                                                                      [4.0, 4.3333333333333333 , 4.6666666666666667 , 5.0]]), tol=2*eps)
     result['matrix // scaler'] = matrix_compare(x10//3, umatrix.matrix([[0, 0, 0, 1],[1, 1, 2, 2],[2, 3, 3, 3],[4, 4, 4, 5]]))
     result['negate matrix'] = matrix_compare(-x10, umatrix.matrix([[0,  -1,  -2,  -3],[-4,  -5,  -6,  -7],[-8,  -9, -10, -11],[-12, -13, -14, -15]]))
     try:
@@ -218,9 +226,6 @@ def products():
         result['matrix dot col 3x3 . 3x1'] = matrix_compare(ulinalg.dot(x1,y_col), umatrix.matrix([1.41, 1.21,  1.0], cstride=1, rstride=1))
     except ValueError:
         result['matrix dot col 3x3 . 3x1'] = False
-    result['psuedo inverse'] = matrix_compare(ulinalg.pinv(x1), umatrix.matrix([[0.7042253521126759   , 0.704225352112676    , -0.8450704225352109  ],
-                                                                              [-0.704225352112676   , 0.704225352112676    , 0.1408450704225352   ],
-                                                                              [1.110223024625157e-16, 5.551115123125783e-17, 0.9999999999999998   ]]))
     x = umatrix.matrix([[ 3., -2., -2.]])
     y = umatrix.matrix([[-1.,  0.,  5.]])
     x1 = umatrix.matrix([[ 3., -2.]])
@@ -277,16 +282,20 @@ def det_inv_test():
     x = umatrix.matrix([[3.,2.,0.,1.],[4.,0.,1.,2.],[3.,0.,2.,1.],[9.,2.,3.,1.]])
     (det,inv) = ulinalg.det_inv(x)
     det_res = det == 24.0
-    f = umatrix.matrix([[-0.25              , 0.25               , -0.5               , 0.25               ],
-                 [0.6666666666666667 , -0.4999999999999999, 0.5000000000000001 , -0.1666666666666667],
-                 [0.1666666666666667 , -0.4999999999999999, 1.0                , -0.1666666666666667],
-                 [0.4166666666666667 , 0.2500000000000001 , 0.5000000000000001 , -0.4166666666666667]])
-    inv_res = matrix_compare(inv, f)
-    f[3,3] = -0.41666668
+    f = umatrix.matrix([[-0.25               , 0.25                , -0.5                , 0.25                ],
+                        [0.66666666666666667 , -0.49999999999999999, 0.50000000000000001 , -0.16666666666666667],
+                        [0.16666666666666667 , -0.49999999999999999, 1.00000000000000002 , -0.16666666666666667],
+                        [0.41666666666666667 , 0.25                , 0.50000000000000001 , -0.41666666666666667]])
+    result['inverse 2'] = matrix_compare(inv, f, tol=eps*2)#, tol=0.000000000000001)
+    f[3,3] = -0.416668
     result['determinant 2'] = det_res
-    result['inverse 2'] = inv_res
-    result['matrix_equal True'] = umatrix.matrix_equal(inv, f, 0.000001)
+    result['matrix_equal True'] = umatrix.matrix_equal(inv, f, tol=0.0001)
     result['matrix_equal False'] = umatrix.matrix_equal(inv, f) == False
+    x1 = umatrix.matrix([[0.71,-0.71,0.7],[0.71,0.71,0.5],[0,0,1]])
+    z = ulinalg.pinv(x1)
+    result['psuedo inverse'] = matrix_compare(z, umatrix.matrix([[0.7042253521126759   , 0.704225352112676    , -0.8450704225352109  ],
+                                                                 [-0.704225352112676   , 0.704225352112676    , 0.1408450704225352   ],
+                                                                 [1.110223024625157e-16, 5.551115123125783e-17, 0.9999999999999998   ]]), tol=2*eps)
 
     return result
 
@@ -306,9 +315,9 @@ for t in [construct,
     print('---', t.__name__, '-'*(60-len(t.__name__)))
     for k,v in results.items():
         if type(v) == tuple:
-            print('Test : {0:42s} ===> {1} : {2}'.format(k, ['    Fail','Pass'][v[0]], v[1]))
+            print('Test : {0:44s} ===> {1} : {2}'.format(k, ['    Fail','Pass'][v[0]], v[1]))
         else:
-            print('Test : {0:42s} ===> {1}'.format(k, ['    Fail','Pass'][v]))
+            print('Test : {0:44s} ===> {1}'.format(k, ['    Fail','Pass'][v]))
     final_results.update(results)
 
 tests_total = len(final_results)
@@ -319,4 +328,4 @@ for i in final_results.values():
     else:
         tests_passed += i
 print('-'*60)
-print('Total ==> {0:3d} Passed ==> {1:3d} Failed ==> {2:3d}'.format(tests_total, tests_passed, tests_total-tests_passed))
+print('Total ==> {0:3d} Passed ==> {1:3d} Failed ==> {2:3d} Tol ==> {3}'.format(tests_total, tests_passed, tests_total-tests_passed, eps))

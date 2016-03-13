@@ -439,14 +439,6 @@ def fp_eps():
         e = e / 2
     return 2 * e
 
-<<<<<<< HEAD
-if sys.implementation.name == 'micropython' and sys.platform == 'linux':
-    # force this as there seems to be some interaction with
-    # some operations done using the C library with a smaller epsilon (doubles)
-    flt_eps = 1.19E-7   # single precision IEEE 2**-23  double 2.22E-16 == 2**-52
-else:
-    flt_eps = fp_eps()
-=======
 flt_eps = fp_eps()
 try:
     if sys.implementation.name == 'micropython' and sys.platform == 'linux':
@@ -455,7 +447,6 @@ try:
         flt_eps = 1.19E-7   # single precision IEEE 2**-23  double 2.22E-16 == 2**-52
 except:
     pass
->>>>>>> dev
 # Determine supported types
 try:
     stypes.append(float)

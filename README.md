@@ -317,14 +317,6 @@ reciprocal(n=1)
 <hr>
 
 ###Functions provided by umatrix module
-
-```
-eps(a=1)
-```
-> Returns the closest floating point number within machine tolerance considered to be different from 'a'.
-
-> Ref. numpy.spacing(), MATLAB/Octave eps() functions 
-
 ```
 isclose(X, Y, rtol=1.0E-5, atol=flt_eps)
 ```
@@ -347,6 +339,13 @@ matrix_equiv(X, Y)
 <hr>
 
 ###Functions provided by ulinalg module
+```
+eps(a=1)
+```
+> Returns the closest floating point number within machine tolerance considered to be different from 'a'.
+
+> Ref. numpy.spacing(), MATLAB/Octave eps() functions 
+
 ```
 zeros(m, n, dtype=umatrix.ddtype)
 ```

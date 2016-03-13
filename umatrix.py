@@ -432,13 +432,6 @@ def matrix_equiv(x, y):
             res = all([x.data[i] == y.data[i] for i in range(len(x.data))])
     return res
 
-def eps(x = 0):
-    # ref. numpy.spacing(), Octave/MATLAB eps() function
-    if x:
-        return 2**(math.floor(math.log(abs(x))/math.log(2)))*umatrix.flt_eps
-    else:
-        return umatrix.flt_eps
-
 def fp_eps():
     ''' Determine floating point resolution '''
     e = 1
@@ -446,12 +439,23 @@ def fp_eps():
         e = e / 2
     return 2 * e
 
+<<<<<<< HEAD
 if sys.implementation.name == 'micropython' and sys.platform == 'linux':
     # force this as there seems to be some interaction with
     # some operations done using the C library with a smaller epsilon (doubles)
     flt_eps = 1.19E-7   # single precision IEEE 2**-23  double 2.22E-16 == 2**-52
 else:
     flt_eps = fp_eps()
+=======
+flt_eps = fp_eps()
+try:
+    if sys.implementation.name == 'micropython' and sys.platform == 'linux':
+        # force this as there seems to be some interaction with
+        # some operations done using the C library with a smaller epsilon (doubles)
+        flt_eps = 1.19E-7   # single precision IEEE 2**-23  double 2.22E-16 == 2**-52
+except:
+    pass
+>>>>>>> dev
 # Determine supported types
 try:
     stypes.append(float)

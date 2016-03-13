@@ -432,13 +432,6 @@ def matrix_equiv(x, y):
             res = all([x.data[i] == y.data[i] for i in range(len(x.data))])
     return res
 
-def eps(x = 0):
-    # ref. numpy.spacing(), Octave/MATLAB eps() function
-    if x:
-        return 2**(math.floor(math.log(abs(x))/math.log(2)))*umatrix.flt_eps
-    else:
-        return umatrix.flt_eps
-
 def fp_eps():
     ''' Determine floating point resolution '''
     e = 1

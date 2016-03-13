@@ -25,7 +25,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
-
+import math
 import umatrix
 
 
@@ -165,3 +165,10 @@ def cross(X, Y, axis=1):
     else:
         raise ValueError('incompatible dimensions for cross product'
                          ' (must be 2 or 3)')
+
+def eps(x = 0):
+    # ref. numpy.spacing(), Octave/MATLAB eps() function
+    if x:
+        return 2**(math.floor(math.log(abs(x))/math.log(2)))*umatrix.flt_eps
+    else:
+        return umatrix.flt_eps

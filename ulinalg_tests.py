@@ -223,7 +223,7 @@ def products():
     result['matrix * matrix elementwise'] = matrix_compare(x11*x11, umatrix.matrix([[0, 1, 4],[16, 25, 36],[64, 81, 100],[144, 169, 196]]))
     result['row dot matrix 1x3 . 3x3'] = matrix_compare(ulinalg.dot(y_row,x1), umatrix.matrix([[ 0.71, -0.71,  1.7 ]]))
     try:
-        result['matrix dot col 3x3 . 3x1'] = matrix_compare(ulinalg.dot(x1,y_col), umatrix.matrix([1.41, 1.21,  1.0], cstride=1, rstride=1))
+        result['matrix dot col 3x3 . 3x1'] = matrix_compare(ulinalg.dot(x1,y_col), umatrix.matrix([1.41, 1.21,  1.0], cstride=1, rstride=1), tol=eps)
     except ValueError:
         result['matrix dot col 3x3 . 3x1'] = False
     x = umatrix.matrix([[ 3., -2., -2.]])

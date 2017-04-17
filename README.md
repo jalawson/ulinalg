@@ -1,4 +1,4 @@
-#Module umatrix, ulinalg
+# Module umatrix, ulinalg
 
 These are intended to be relatively small modules for use with MicroPython (Python3) which provide a minimal matrix class for representation, manipulation and a few linear algebra routines.
 
@@ -8,7 +8,7 @@ These routines are not designed to be particulary fast.
 
 (eg. 3x3 matrix inversion takes about 350ms on a PyBoard.)
 
-####Files:
+#### Files:
 
 * __umatrix.py__ - matrix class.
 * __ulinalg.py__ - supporting linear algebra routines (requires ```umatrix``` ).
@@ -16,7 +16,7 @@ These routines are not designed to be particulary fast.
 
 Currently supported: (see following sections and Properties, Methods and Functions for descriptions)
 
-####Provided by ```umatrix```
+#### Provided by ```umatrix```
 
 * assignment
 * slicing (the third step argument is not supported)
@@ -28,7 +28,7 @@ Operations need to be arranged in a __matrix OP scaler__ form. See the __Impleme
 * sub-matrix assignment
 * reshaping
 
-####Provided by ```ulinalg```
+#### Provided by ```ulinalg```
 
 * eye
 * ones
@@ -39,14 +39,14 @@ Operations need to be arranged in a __matrix OP scaler__ form. See the __Impleme
 
 <hr>
 
-##Classes
+## Classes
 
 ```
 umatrix.matrix
 ```
 <hr>
 
-####Matrix instantiation
+#### Matrix instantiation
 
 Supported matrix element types default to __bool__ and __int__. Support for __float__ and __complex__ are determined by the module upon importing
  and will depend on MicroPython compilation options and platform. 
@@ -85,7 +85,7 @@ X = mat([[0.0 , 1.0 , 2.0 ],
 ```
 <hr>
 
-####Matrix slicing
+#### Matrix slicing
 
 ```
 >>> import umatrix
@@ -137,7 +137,7 @@ mat([[5, 6],
 ```
 <hr>
 
-####Matrix assignment
+#### Matrix assignment
 
 Matrix elements can be assigned to using __bool__, __int__, __float__, __complex__, __list__ or from a __matrix__.
 A list will assign elements in order from the source and wrap around if required.
@@ -171,7 +171,7 @@ mat([[0 , 1 , 2 ],
 ```
 <hr>
 
-####Iteration
+#### Iteration
 
 Iterating over a matrix will return the rows as a list of 1xn matrices (Numpy returns a list of vectors).
 
@@ -188,9 +188,9 @@ Iterating over a slice of a matrix will return a list of elements.
 ```
 <hr>
 
-##Implementation Notes
+## Implementation Notes
 
-####Differences from Numpy Arrays
+#### Differences from Numpy Arrays
 
 * Slices are always a view in numpy, in umatrix they are currently not a view
 * Scaler as left hand side arguement for [+,-,*,\,\\] operations are not supported in umatrix (see below) but a matrix as left hand side is.
@@ -198,7 +198,7 @@ Iterating over a slice of a matrix will return a list of elements.
 * numpy has a 0-d array, ```numpy.array(2)``` a special vector that acts like a scaler.
 * umatrix doesn't support NaN, Inf, -Inf
 
-####Types
+#### Types
 
 The ```umatrix``` module attempts to determine the supported types and floating point epsilon if __float__ is supported.
 
@@ -218,7 +218,7 @@ Notes:
 * ```flt_eps``` is kind of irrelevent when all the work is done on one platform but the ```ulinalg_test``` file uses it to determine matrix equality.
 <hr>
 
-####Matrix ```+,-,*,\,\\``` Scaler operations
+#### Matrix ```+,-,*,\,\\``` Scaler operations
 Matrices used as the LH argument of a scaler operation will work for elementwise operation.  Using a scaler as the RH argument does not work as reflected operations are not yet supported by MicroPython.
 
 Negation of a matrix does work.
@@ -245,7 +245,7 @@ X.reciprocal()*2.0 # does work (1/x * 2.0)
 The reason seems to be that the __MicroPython__ __int__ class __\_\_add\_\___ method (for example) does not raise __NotImplementedError__ and therefore the ```umatrix``` __\_\_radd\_\___ method is not invoked.
 <hr>
 
-####Matrix equality
+#### Matrix equality
 In MicroPython ```X == Y``` returns ```True``` if all elements of X and Y are equal and the they have the same shape.
 
 The following functions are available:
@@ -259,7 +259,7 @@ In Numpy ```X == Y``` returns a boolean matrix indicating element equality.
 To get a similar result to Numpy, use ```umatrix.matrix_isclose(X, Y)```.
 <hr>
 
-###Properties of umatrix.matrix
+### Properties of umatrix.matrix
 ```
 shape
 ```
@@ -282,9 +282,9 @@ T
 
 <hr>
 
-###Methods of umatrix.matrix
+### Methods of umatrix.matrix
 ```
-copy
+copy()
 ```
 > Returns a copy of the matrix
 
@@ -305,7 +305,7 @@ reshape(m, n)
 > Returns a __copy__ of the matrix with a the shape (m, n)
 
 ```
-transpose
+transpose()
 ```
 > Returns a __view__ of the matrix transpose
 
@@ -316,7 +316,7 @@ reciprocal(n=1)
 
 <hr>
 
-###Functions provided by umatrix module
+### Functions provided by umatrix module
 ```
 isclose(X, Y, rtol=1.0E-5, atol=flt_eps)
 ```
@@ -338,7 +338,7 @@ matrix_equiv(X, Y)
 
 <hr>
 
-###Functions provided by ulinalg module
+### Functions provided by ulinalg module
 ```
 eps(a=1)
 ```

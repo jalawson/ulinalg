@@ -404,6 +404,17 @@ class matrix(object):
     def reciprocal(self, n=1):
         return matrix([n / i for i in self.data], cstride=self.cstride, rstride=self.rstride)
 
+    def apply(self, func, *args, **kwargs):
+        """ call a scalar function on each element, returns a new matrix
+        passes *args and **kwargs to func unmodified
+        note: this is not useful for matrix-matrix operations
+        e.g.
+            y = x.apply(math.sin)
+            y = x.apply(lambda a,b: a>b, 5) # equivalent to y = x > 5
+            y = x.apply(operators.gt, 5)    # equivalent to y = x > 5 (not in micropython)
+        """
+        return matrix([func(i, *args, **kwargs) for i in self.data],
+                      cstride=self.cstride, rstride=self.rstride)
 
 def matrix_isclose(x, y, rtol=1E-05, atol=flt_eps):
     ''' Returns a matrix indicating equal elements within tol'''

@@ -312,7 +312,22 @@ transpose()
 ```
 reciprocal(n=1)
 ```
-> Retruns a matrix with elementwise recipricals by default (or n/element). For use in scaler division. See __Implementation Notes__.
+> Returns a matrix with elementwise recipricals by default (or n/element). For use in scaler division. See __Implementation Notes__.
+
+```
+apply(func, *args, **kwargs)
+```
+> Call a scalar function on each element, returns a new matrix
+passes *args and **kwargs to func unmodified
+note: this is not useful for matrix-matrix operations
+
+> e.g.
+
+```
+   y = x.apply(math.sin)
+   y = x.apply(lambda a,b: a>b, 5) # equivalent to y = x > 5
+   y = x.apply(operators.gt, 5)    # equivalent to y = x > 5 (not in micropython)
+```
 
 <hr>
 

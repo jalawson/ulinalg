@@ -187,7 +187,7 @@ class matrix(object):
             s1, p1 = self.slice_indices(index[1], 1)
         if type(val) == matrix:
             val = val.data
-        elif type(val) != list:
+        elif type(val) not in [list, tuple]:
             val = [val]
         if not all([type(i) in stypes for i in val]):
             raise ValueError('Non numeric entry')

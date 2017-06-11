@@ -43,7 +43,6 @@ def eye(m, dtype=umatrix.ddtype):
         Z[i, i] = 1
     return Z
 
-
 def det_inv(x):
     ''' Return (det(x) and inv(x))
 
@@ -60,7 +59,7 @@ def det_inv(x):
         # divide each row element by [0] to give a one in the first position
         # (may have to find a row to switch with if first element is 0)
         x = x.copy()
-        inverse = eye(len(x)) * 1.0
+        inverse = eye(len(x), dtype=float)
         sign = 1
         factors = []
         p = 0

@@ -122,18 +122,18 @@ class matrix(object):
         return matrix(nd, cstride=1, rstride=(c1 - c0))
 
     def slice_indices(self, index, axis=0):
-        # this section is to get around the missing slice.indices() method
-        # the following should work when uPy implements the slice.indices()
-        # method
-        #     midx = index[0].indices(self.m)
-        #     nidx = index[1].indices(self.n)
-        st = str(index).split(',')
-        if st[0][6:] == 'None':
+        # handles the unsupported slice.indices() method in uPy.
+        # If implemented: 
+        #     midx = index.indices(self.m)
+        # should work.
+        if isinstance(index.start, type(None)):
             s0 = 0
+        else:
+            s0 = int(index.start)
+        if isinstance(index.stop, type(None)):
             p0 = self.shape[axis]
         else:
-            s0 = int(st[0][6:])
-            p0 = int(st[1][1:])
+            p0 = int(index.stop)
         return (s0, p0)
 
     def __getitem__(self, index):

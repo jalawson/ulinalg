@@ -129,11 +129,11 @@ class matrix(object):
         if isinstance(index.start, type(None)):
             s0 = 0
         else:
-            s0 = int(index.start)
+            s0 = min(int(index.start), self.shape[axis])
         if isinstance(index.stop, type(None)):
             p0 = self.shape[axis]
         else:
-            p0 = int(index.stop)
+            p0 = min(int(index.stop), self.shape[axis])
         return (s0, p0)
 
     def __getitem__(self, index):

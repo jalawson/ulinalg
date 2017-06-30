@@ -2,9 +2,9 @@
 
 These are intended to be relatively small modules for use with MicroPython (Python3) which provide a minimal matrix class for representation, manipulation and a few linear algebra routines.
 
-The matrix module is designed to offer close functional compatiblity with 2-D Numpy arrays.
+The matrix module is designed to offer close functional compatibility with 2-D Numpy arrays.
 
-These routines are not designed to be particulary fast.
+These routines are not designed to be particularly fast.
 
 (eg. 3x3 matrix inversion takes about 350ms on a PyBoard.)
 
@@ -20,7 +20,7 @@ Currently supported: (see following sections and Properties, Methods and Functio
 
 * assignment
 * slicing (the third step argument is not supported)
-* matrix/scaler elementwise arithmatic operations
+* matrix/scaler element wise arithmetic operations
  * Note: __scaler OP matrix__ operations fail under MicroPython as reflected operations are not yet fully supported.
 Operations need to be arranged in a __matrix OP scaler__ form. See the __Implementation Notes__ section.
 * transpose
@@ -192,10 +192,10 @@ Iterating over a slice of a matrix will return a list of elements.
 
 #### Differences from Numpy Arrays
 
-* Slices are always a view in numpy, in umatrix they are currently not a view
-* Scaler as left hand side arguement for [+,-,*,\,\\] operations are not supported in umatrix (see below) but a matrix as left hand side is.
-* Single row/col slices are 1-D arrays in numpy and  a 1xn (row) or nx1 (column) matrix in umatrix
-* numpy has a 0-d array, ```numpy.array(2)``` a special vector that acts like a scaler.
+* Slices are always a view in Numpy, in umatrix they are currently not a view
+* Scaler as left hand side argument for [+,-,*,\,\\] operations are not supported in umatrix (see below) but a matrix as left hand side is.
+* Single row/col slices are 1-D arrays in Numpy and  a 1xn (row) or nx1 (column) matrix in umatrix
+* Numpy has a 0-d array, ```numpy.array(2)``` a special vector that acts like a scaler.
 * umatrix doesn't support NaN, Inf, -Inf
 
 #### Types
@@ -204,22 +204,22 @@ The ```umatrix``` module attempts to determine the supported types and floating 
 
 The results are held in ```umatrix.stypes``` and ```umatrix.flt_eps``` respectively.
 
-The variable ```umatrix.ddtype``` holds the default type used by some ```ulinalg``` routines (__float__ if supported) .
+The variable ```umatrix.dtype``` holds the default type used by some ```ulinalg``` routines (__float__ if supported) .
 
 For example __flt\_eps__, __stypes__ under a few different platforms:
 ```
-#    Pyboard         = 1.19E-7 , [<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>]
+#    PyBoard         = 1.19E-7 , [<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>]
 #    WiPy            = 1       , [<class 'bool'>, <class 'int'>]
 #    Linux (uPy)     = 1.19E-7 , [<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>]
 #    Linux (CPython) = 2.22E-16, [<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>]
 ```
 Notes:
-* uPy under Linux forces ```flt_eps = 1.19E-7``` since it appears that the underlying math fuctions use doubles but uPy operates with single precision.
-* ```flt_eps``` is kind of irrelevent when all the work is done on one platform but the ```ulinalg_test``` file uses it to determine matrix equality.
+* uPy under Linux forces ```flt_eps = 1.19E-7``` since it appears that the underlying math functions use doubles but uPy operates with single precision.
+* ```flt_eps``` is kind of irrelevant when all the work is done on one platform but the ```ulinalg_test``` file uses it to determine matrix equality.
 <hr>
 
 #### Matrix ```+,-,*,\,\\``` Scaler operations
-Matrices used as the LH argument of a scaler operation will work for elementwise operation.  Using a scaler as the RH argument does not work as reflected operations are not yet supported by MicroPython.
+Matrices used as the LH argument of a scaler operation will work for element wise operation.  Using a scaler as the RH argument does not work as reflected operations are not yet supported by MicroPython.
 
 Negation of a matrix does work.
 
@@ -251,7 +251,7 @@ In MicroPython ```X == Y``` returns ```True``` if all elements of X and Y are eq
 The following functions are available:
 * ```umatrix.matrix_equal(X, Y)```  - boolean indicating same data and shape.
 * ```umatrix.matrix_equv(X, Y, tol=0)```  - boolean indication same data (within tol) and broadcastable.
-* ```umatrix.matrix.isclose(X, Y, rtol=1.0E-5, atol=flt_eps)```  - boolean matrix indicating elementwise equality (within tol).
+* ```umatrix.matrix.isclose(X, Y, rtol=1.0E-5, atol=flt_eps)```  - boolean matrix indicating element wise equality (within tol).
 
 Float and complex default to determining equality within ```flt_eps```.
 
@@ -293,7 +293,7 @@ size(axis=0)
 ``` 
 > Returns:
 
-> axis=0 size (n*m) for Numpy compatibilty
+> axis=0 size (n*m) for Numpy compatibility
 
 > axis=1 rows
 
@@ -312,7 +312,7 @@ transpose()
 ```
 reciprocal(n=1)
 ```
-> Returns a matrix with elementwise recipricals by default (or n/element). For use in scaler division. See __Implementation Notes__.
+> Returns a matrix with element wise reciprocals by default (or n/element). For use in scaler division. See __Implementation Notes__.
 
 ```
 apply(func, *args, **kwargs)
@@ -326,7 +326,7 @@ note: this is not useful for matrix-matrix operations
 ```
    y = x.apply(math.sin)
    y = x.apply(lambda a,b: a>b, 5) # equivalent to y = x > 5
-   y = x.apply(operators.gt, 5)    # equivalent to y = x > 5 (not in micropython)
+   y = x.apply(operators.gt, 5)    # equivalent to y = x > 5 (not in MicroPython)
 ```
 
 <hr>
@@ -335,7 +335,7 @@ note: this is not useful for matrix-matrix operations
 ```
 isclose(X, Y, rtol=1.0E-5, atol=flt_eps)
 ```
-> Returns True if matrices X and Y have the same shape and the elements are whithin ```tol```.
+> Returns True if matrices X and Y have the same shape and the elements are within ```tol```.
 > ```tol``` defaults to ```umatrix.flt_eps``` for use with ```int``` and to ```flt_eps``` for ```float``` and ```complex```.
 
 > Ref. numpy.isclose()
@@ -405,4 +405,4 @@ cross(X, Y, axis=1)
 
 > axis = 1 (default) is for Numpy compatibility.
 
-> axis = 0 is for MATLAB, Octave, SciLab compatability.
+> axis = 0 is for MATLAB, Octave, SciLab compatibility.
